@@ -1,0 +1,389 @@
+// Schéma Prisma officiel — Paiement BJ
+// Décision structurante : AUCUN portefeuille interne, AUCUN solde de cantonnement.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum IdentityLevel {
+  LEVEL_0_ANONYMOUS
+  LEVEL_1_PHONE_VERIFIED
+  LEVEL_2_IDENTITY_VERIFIED
+  LEVEL_3_ENHANCED
+}
+
+enum ServiceCategoryType {
+  UTILITIES_BILLS
+  PUBLIC_ADMINISTRATION
+  GOODS_SERVICES
+  TRANSFERS
+  INTERNATIONAL
+}
+
+enum IntegrationStatus {
+  LIVE
+  SANDBOX_CONNECTED
+  PENDING_AGREEMENT
+  TECHNICAL_IN_PROGRESS
+  UNAVAILABLE
+}
+
+enum TransactionStatus {
+  INITIATED
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  EXPIRED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentProviderCode {
+  MTN_MOMO
+  MOOV_MONEY
+  CELTIIS_CASH
+  BANK_CARD
+  TRESOR_PAY
+}
+
+enum TicketStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+enum TicketCategory {
+  DEBITED_NOT_CREDITED
+  INCORRECT_AMOUNT
+  REFERENCE_ERROR
+  RECEIPT_NOT_GENERATED
+  TECHNICAL_DIFFICULTY
+  OTHER
+}
+
+// -----------------------------------------------------------------------------
+// UTILISATEURS, SESSIONS ET CONSENTEMENT
+// -----------------------------------------------------------------------------
+
+model User {
+  id            String        @id @default(uuid())
+  phone         String        @unique // Format normalisé E.164 (+229...)
+  identityLevel IdentityLevel @default(LEVEL_1_PHONE_VERIFIED)
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  profile         UserProfile?
+  sessions        DeviceSession[]
+  consents        ConsentRecord[]
+  paymentIntents  PaymentIntent[]
+  supportTickets  SupportTicket[]
+  auditLogs       AuditLog[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id                   String   @id @default(uuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName            String?
+  lastName             String?
+  email                String?
+  language             String   @default("fr")
+  reducedMotion        Boolean  @default(false)
+  highContrast         Boolean  @default(false)
+  largeFont            Boolean  @default(false)
+  pushNotifications    Boolean  @default(true)
+  smsNotifications     Boolean  @default(true)
+  emailNotifications   Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("user_profiles")
+}
+
+model DeviceSession {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId     String
+  deviceName   String
+  platform     String   // 'android' | 'ios' | 'web'
+  refreshToken String?  @unique
+  ipAddress    String?
+  lastActiveAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  isRevoked    Boolean  @default(false)
+
+  @@index([userId])
+  @@index([deviceId])
+  @@map("device_sessions")
+}
+
+model ConsentRecord {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose    String    // 'terms_of_service' | 'privacy_policy' | 'telemetry' | 'anip_verification'
+  version    String
+  acceptedAt DateTime  @default(now())
+  revokedAt  DateTime?
+
+  @@index([userId])
+  @@map("consent_records")
+}
+
+// -----------------------------------------------------------------------------
+// CATALOGUE DE SERVICES ET ORGANISMES
+// -----------------------------------------------------------------------------
+
+model ServiceOrganization {
+  id             String              @id @default(uuid())
+  code           String              @unique // 'sbee', 'soneb', 'tresor', 'anip', 'canal_plus'
+  name           String
+  description    String
+  category       ServiceCategoryType
+  logoAssetKey   String
+  websiteUrl     String?
+  supportPhone   String?
+  isPublicEntity Boolean             @default(true)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  services Service[]
+
+  @@map("service_organizations")
+}
+
+model Service {
+  id                     String              @id @default(uuid())
+  organizationId         String
+  organization           ServiceOrganization @relation(fields: [organizationId], references: [id])
+  code                   String              @unique
+  title                  String
+  description            String
+  category               ServiceCategoryType
+  integrationStatus      IntegrationStatus   @default(PENDING_AGREEMENT)
+  statusMessage          String?
+  minAmount              Float?
+  maxAmount              Float?
+  currency               String              @default("XOF")
+  requiredIdentityLevel  IdentityLevel       @default(LEVEL_1_PHONE_VERIFIED)
+  supportedPaymentMethods String[]            // JSON or text array: MTN_MOMO, MOOV_MONEY, etc.
+  fixedFee               Float               @default(0)
+  percentageFee          Float               @default(0)
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  fields         ServiceField[]
+  paymentIntents PaymentIntent[]
+
+  @@index([organizationId])
+  @@index([category])
+  @@map("services")
+}
+
+model ServiceField {
+  id              String   @id @default(uuid())
+  serviceId       String
+  service         Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  name            String
+  label           String
+  placeholder     String
+  type            String   // 'text' | 'number' | 'phone' | 'reference' | 'npi' | 'select'
+  required        Boolean  @default(true)
+  validationRegex String?
+  helpText        String?
+  orderIndex      Int      @default(0)
+
+  @@index([serviceId])
+  @@map("service_fields")
+}
+
+// -----------------------------------------------------------------------------
+// PRESTATAIRES ET TRANSACTIONS
+// -----------------------------------------------------------------------------
+
+model PaymentProviderConfig {
+  id            String              @id @default(uuid())
+  code          PaymentProviderCode @unique
+  name          String
+  logoAssetKey  String
+  isOperational Boolean             @default(false)
+  environment   String              @default("sandbox") // 'sandbox' | 'production'
+  apiEndpoint   String?
+  apiKeyRef     String?
+  webhookSecret String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@map("payment_provider_configs")
+}
+
+model PaymentIntent {
+  id               String            @id @default(uuid())
+  userId           String
+  user             User              @relation(fields: [userId], references: [id])
+  serviceId        String
+  service          Service           @relation(fields: [serviceId], references: [id])
+  amountPrincipal  Float
+  providerFee      Float             @default(0)
+  totalAmount      Float
+  currency         String            @default("XOF")
+  serviceReference String
+  customerData     Json              @default("{}")
+  status           TransactionStatus @default(INITIATED)
+  idempotencyKey   String            @unique
+  reference        String            @unique // "PBJ-YYYYMMDD-XXXXX"
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  confirmedAt      DateTime?
+
+  attempts       PaymentAttempt[]
+  events         PaymentEvent[]
+  receipt        Receipt?
+  supportTickets SupportTicket[]
+
+  @@index([userId])
+  @@index([serviceId])
+  @@index([status])
+  @@map("payment_intents")
+}
+
+model PaymentAttempt {
+  id                String              @id @default(uuid())
+  paymentIntentId   String
+  paymentIntent     PaymentIntent       @relation(fields: [paymentIntentId], references: [id], onDelete: Cascade)
+  providerCode      PaymentProviderCode
+  providerReference String?
+  status            TransactionStatus   @default(PENDING)
+  rawStatus         String?
+  errorMessage      String?
+  metadata          Json?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([paymentIntentId])
+  @@index([providerReference])
+  @@map("payment_attempts")
+}
+
+model PaymentEvent {
+  id              String             @id @default(uuid())
+  paymentIntentId String
+  paymentIntent   PaymentIntent      @relation(fields: [paymentIntentId], references: [id], onDelete: Cascade)
+  eventType       String             // 'intent_created' | 'attempt_started' | 'webhook_received' | 'confirmed'
+  fromStatus      TransactionStatus?
+  toStatus        TransactionStatus
+  payload         Json?
+  createdAt       DateTime           @default(now())
+
+  @@index([paymentIntentId])
+  @@map("payment_events")
+}
+
+model Receipt {
+  id                   String        @id @default(uuid())
+  paymentIntentId      String        @unique
+  paymentIntent        PaymentIntent @relation(fields: [paymentIntentId], references: [id])
+  receiptNumber        String        @unique // "REC-BJ-YYYY-XXXXX"
+  beneficiaryName      String
+  serviceTitle         String
+  serviceReference     String
+  amountPrincipal      Float
+  fees                 Float
+  totalAmount          Float
+  currency             String        @default("XOF")
+  payerPhone           String
+  providerName         String
+  providerReference    String
+  issuedAt             DateTime      @default(now())
+  digitalSignatureHash String        // SHA-256 du reçu officiel
+  isVerified           Boolean       @default(true)
+
+  @@map("receipts")
+}
+
+// -----------------------------------------------------------------------------
+// ASSISTANCE ET RÉCLAMATIONS
+// -----------------------------------------------------------------------------
+
+model SupportTicket {
+  id              String         @id @default(uuid())
+  ticketNumber    String         @unique // "TK-2026-XXXXX"
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  transactionId   String?
+  paymentIntent   PaymentIntent? @relation(fields: [transactionId], references: [id])
+  category        TicketCategory
+  title           String
+  description     String
+  status          TicketStatus   @default(OPEN)
+  resolutionNotes String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  messages SupportMessage[]
+
+  @@index([userId])
+  @@index([transactionId])
+  @@map("support_tickets")
+}
+
+model SupportMessage {
+  id         String        @id @default(uuid())
+  ticketId   String
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderType String        // 'USER' | 'AGENT' | 'SYSTEM'
+  senderName String
+  content    String
+  createdAt  DateTime      @default(now())
+
+  @@index([ticketId])
+  @@map("support_messages")
+}
+
+// -----------------------------------------------------------------------------
+// AUDIT ET CONFORMITÉ (LBC/FT, APDP, BCEAO)
+// -----------------------------------------------------------------------------
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  actorId      String?
+  actorType    String   // 'USER' | 'ADMIN' | 'SYSTEM' | 'PROVIDER'
+  action       String   // 'AUTH_LOGIN', 'PAYMENT_INITIATED', 'STATUS_CHECKED', 'CATALOG_EDITED'
+  resourceType String
+  resourceId   String?
+  details      Json?
+  ipAddress    String?
+  userAgent    String?
+  timestamp    DateTime @default(now())
+  user         User?    @relation(fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([action])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("OPERATOR") // 'SUPERADMIN' | 'OPERATOR' | 'AUDITOR' | 'SUPPORT'
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("admin_users")
+}

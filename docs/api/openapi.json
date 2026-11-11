@@ -1,0 +1,803 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/notifications": {
+      "get": {
+        "operationId": "NotificationsController_listNotifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Liste des notifications."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste des notifications de sécurité et de paiement de l’usager",
+        "tags": [
+          "Notifications"
+        ]
+      }
+    },
+    "/v1/notifications/{id}/read": {
+      "patch": {
+        "operationId": "NotificationsController_markRead",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification marquée lue."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Marquer une notification comme lue",
+        "tags": [
+          "Notifications"
+        ]
+      }
+    },
+    "/v1/auth/otp/request": {
+      "post": {
+        "operationId": "AuthController_requestOtp",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Code envoyé avec succès."
+          }
+        },
+        "summary": "Demande d’un code de vérification SMS (OTP)",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/v1/auth/otp/verify": {
+      "post": {
+        "operationId": "AuthController_verifyOtp",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Session créée et jetons émis."
+          }
+        },
+        "summary": "Vérification du code OTP et création de session",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/v1/auth/me": {
+      "get": {
+        "operationId": "AuthController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Récupère le profil de l’utilisateur connecté",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/v1/auth/profile": {
+      "patch": {
+        "operationId": "AuthController_updateProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Met à jour les préférences et coordonnées de l’utilisateur",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/v1/auth/sessions": {
+      "get": {
+        "operationId": "AuthController_getSessions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste des appareils et sessions actives de l’usager",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/v1/auth/sessions/revoke": {
+      "post": {
+        "operationId": "AuthController_revokeSession",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Révoquer l’accès d’un appareil spécifique",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/v1/auth/consents": {
+      "get": {
+        "operationId": "AuthController_getConsents",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Historique horodaté des consentements (APDP)",
+        "tags": [
+          "Authentification"
+        ]
+      },
+      "post": {
+        "operationId": "AuthController_recordConsent",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Enregistrer un consentement éclairé horodaté",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/v1/auth/account/delete-request": {
+      "post": {
+        "operationId": "AuthController_requestAccountDeletion",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Demande de suppression de compte (Loi APDP)",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/v1/services": {
+      "get": {
+        "operationId": "CatalogController_listServices",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Services récupérés avec succès."
+          }
+        },
+        "summary": "Liste les services payables avec recherche et filtres de catégorie",
+        "tags": [
+          "Catalogue des services"
+        ]
+      }
+    },
+    "/v1/services/{id}": {
+      "get": {
+        "operationId": "CatalogController_getServiceById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service trouvé."
+          },
+          "404": {
+            "description": "Service introuvable."
+          }
+        },
+        "summary": "Détail d’un service avec sa configuration de formulaire et champs",
+        "tags": [
+          "Catalogue des services"
+        ]
+      }
+    },
+    "/v1/payments/providers": {
+      "get": {
+        "operationId": "PaymentsController_listProviders",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Liste des prestataires."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste les prestataires de paiement et leur disponibilité réelle",
+        "tags": [
+          "Orchestration des paiements"
+        ]
+      }
+    },
+    "/v1/payments/quote": {
+      "post": {
+        "operationId": "PaymentsController_getQuote",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Devis calculé."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Calcul officiel des frais et du total à payer avant validation",
+        "tags": [
+          "Orchestration des paiements"
+        ]
+      }
+    },
+    "/v1/payments/validate": {
+      "post": {
+        "operationId": "PaymentsController_validatePayment",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Résultat de vérification."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Vérification préalable des références client auprès du prestataire",
+        "tags": [
+          "Orchestration des paiements"
+        ]
+      }
+    },
+    "/v1/payments/intents": {
+      "post": {
+        "operationId": "PaymentsController_createIntent",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Intention créée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Création d’une intention de paiement sécurisée par clé d’idempotence",
+        "tags": [
+          "Orchestration des paiements"
+        ]
+      }
+    },
+    "/v1/payments/attempts": {
+      "post": {
+        "operationId": "PaymentsController_createAttempt",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Tentative initialisée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Déclenchement d’une tentative de débit auprès d’un prestataire sélectionné",
+        "tags": [
+          "Orchestration des paiements"
+        ]
+      }
+    },
+    "/v1/payments/intents/{id}/status": {
+      "get": {
+        "operationId": "PaymentsController_getStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statut actuel vérifié."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Vérification du statut d’une transaction auprès du prestataire",
+        "tags": [
+          "Orchestration des paiements"
+        ]
+      }
+    },
+    "/v1/payments/webhooks/{provider}": {
+      "post": {
+        "operationId": "PaymentsController_handleWebhook",
+        "parameters": [
+          {
+            "name": "provider",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhook traité de manière idempotente."
+          },
+          "401": {
+            "description": "Signature HMAC invalide ou expirée."
+          }
+        },
+        "summary": "Point de réception HMAC-SHA256 des confirmations prestataires (protégé par signature + fenêtre anti-rejeu)",
+        "tags": [
+          "Orchestration des paiements"
+        ]
+      }
+    },
+    "/v1/transactions": {
+      "get": {
+        "operationId": "TransactionsController_listTransactions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Historique récupéré."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Historique des transactions réelles de l’utilisateur connecté",
+        "tags": [
+          "Transactions et reçus"
+        ]
+      }
+    },
+    "/v1/transactions/{id}": {
+      "get": {
+        "operationId": "TransactionsController_getTransaction",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail trouvé."
+          },
+          "404": {
+            "description": "Transaction introuvable."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Détail d’une transaction",
+        "tags": [
+          "Transactions et reçus"
+        ]
+      }
+    },
+    "/v1/transactions/{id}/receipt": {
+      "get": {
+        "operationId": "TransactionsController_getReceipt",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reçu officiel généré."
+          },
+          "404": {
+            "description": "Reçu non disponible."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reçu officiel et empreinte numérique d’une transaction confirmée",
+        "tags": [
+          "Transactions et reçus"
+        ]
+      }
+    },
+    "/v1/support/tickets": {
+      "post": {
+        "operationId": "SupportController_createTicket",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Réclamation enregistrée."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Enregistrement d’une réclamation liée ou non à une transaction",
+        "tags": [
+          "Assistance et réclamations"
+        ]
+      },
+      "get": {
+        "operationId": "SupportController_listTickets",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Liste des dossiers."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste des réclamations de l’utilisateur connecté",
+        "tags": [
+          "Assistance et réclamations"
+        ]
+      }
+    },
+    "/v1/support/tickets/{id}": {
+      "get": {
+        "operationId": "SupportController_getTicket",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dossier trouvé."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Détail et historique d’une réclamation",
+        "tags": [
+          "Assistance et réclamations"
+        ]
+      }
+    },
+    "/v1/support/tickets/{id}/messages": {
+      "post": {
+        "operationId": "SupportController_addMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Message ajouté au dossier."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Ajouter un message de suivi à une réclamation",
+        "tags": [
+          "Assistance et réclamations"
+        ]
+      }
+    },
+    "/v1/admin/login": {
+      "post": {
+        "operationId": "AdminController_login",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Jeton administrateur délivré."
+          },
+          "401": {
+            "description": "Identifiants invalides."
+          }
+        },
+        "summary": "Connexion opérateur / auditeur au back-office administrateur",
+        "tags": [
+          "Back-Office Administrateur"
+        ]
+      }
+    },
+    "/v1/admin/stats": {
+      "get": {
+        "operationId": "AdminController_getStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Statistiques obtenues."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Statistiques consolidées et réelles du back-office",
+        "tags": [
+          "Back-Office Administrateur"
+        ]
+      }
+    },
+    "/v1/admin/audit-logs": {
+      "get": {
+        "operationId": "AdminController_getAuditLogs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consultation du journal d’audit de sécurité et gouvernance",
+        "tags": [
+          "Back-Office Administrateur"
+        ]
+      }
+    },
+    "/v1/admin/transactions": {
+      "get": {
+        "operationId": "AdminController_listTransactions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste des transactions réelles pour supervision et rapprochement",
+        "tags": [
+          "Back-Office Administrateur"
+        ]
+      }
+    },
+    "/v1/admin/services/{id}/status": {
+      "patch": {
+        "operationId": "AdminController_updateStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Activation / suspension temporaire d’un service du catalogue",
+        "tags": [
+          "Back-Office Administrateur"
+        ]
+      }
+    },
+    "/v1/admin/support/tickets": {
+      "get": {
+        "operationId": "AdminController_listTickets",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Supervision des réclamations usagers",
+        "tags": [
+          "Back-Office Administrateur"
+        ]
+      }
+    },
+    "/v1/admin/support/tickets/{id}": {
+      "patch": {
+        "operationId": "AdminController_updateTicket",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mettre à jour ou résoudre un dossier de réclamation",
+        "tags": [
+          "Back-Office Administrateur"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Paiement BJ — API Interopérabilité des Paiements",
+    "description": "Spécification OpenAPI officielle des services de centralisation, orchestration et télépaiement au Bénin. Aucun portefeuille interne : conformité BCEAO Instruction n°001-01-2024 et APDP Loi n°2017-20.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Authentification",
+      "description": "Inscription, vérification OTP, sessions, profil et consentements"
+    },
+    {
+      "name": "Catalogue des services",
+      "description": "Consultation des services et organismes publics / privés"
+    },
+    {
+      "name": "Orchestration des paiements",
+      "description": "Prestataires, devis, validation, intentions idempotentes, tentatives et webhooks HMAC"
+    },
+    {
+      "name": "Transactions et reçus",
+      "description": "Historique vérifié et justificatifs officiels SHA-256"
+    },
+    {
+      "name": "Notifications",
+      "description": "Alertes de sécurité et suivi de statut des transactions"
+    },
+    {
+      "name": "Assistance et réclamations",
+      "description": "Dépôt et suivi conversationnel des litiges usagers"
+    },
+    {
+      "name": "Back-Office Administrateur",
+      "description": "Connexion opérateur RBAC, gouvernance, supervision et audit"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {}
+  }
+}

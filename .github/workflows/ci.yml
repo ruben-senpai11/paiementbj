@@ -1,0 +1,46 @@
+name: Paiement BJ CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  verify-and-test:
+    name: Build, Typecheck, Tests & Web Export
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Generate Prisma Client
+        run: npx prisma generate --schema=apps/api/prisma/schema.prisma
+
+      - name: Build Shared Packages
+        run: npm run build:packages
+
+      - name: Typecheck All Workspaces
+        run: npm run typecheck
+
+      - name: Build API Backend & Admin Back-Office
+        run: npm run build
+
+      - name: Run All Unit & HTTP Integration Tests
+        run: npm test
+
+      - name: Verify Expo Config & Web Static Export
+        working-directory: apps/mobile
+        run: |
+          npx expo-doctor
+          npx expo export --platform web --output-dir dist

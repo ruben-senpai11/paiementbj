@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "baseUrl": ".",
+    "paths": {
+      "@paiementbj/types": ["packages/types/src"],
+      "@paiementbj/types/*": ["packages/types/src/*"],
+      "@paiementbj/shared": ["packages/shared/src"],
+      "@paiementbj/shared/*": ["packages/shared/src/*"],
+      "@paiementbj/schemas": ["packages/schemas/src"],
+      "@paiementbj/schemas/*": ["packages/schemas/src/*"],
+      "@paiementbj/ui": ["packages/ui/src"],
+      "@paiementbj/ui/*": ["packages/ui/src/*"],
+      "@paiementbj/api-client": ["packages/api-client/src"],
+      "@paiementbj/api-client/*": ["packages/api-client/src/*"]
+    }
+  }
+}
