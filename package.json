@@ -15,6 +15,7 @@
     "build:packages": "npm run build --workspace=packages/types && npm run build --workspace=packages/shared && npm run build --workspace=packages/schemas && npm run build --workspace=packages/api-client",
     "build": "npm run build --workspace=packages/types && npm run build --workspace=packages/shared && npm run build --workspace=packages/schemas && npm run build --workspace=packages/api-client && npm run build --workspace=apps/api && npm run build --workspace=apps/admin && npm run build --workspace=apps/web",
     "export:apps": "node scripts/export-apps.mjs",
+    "vercel:build": "node scripts/build-vercel.mjs",
     "test": "node --test tests/run-tests.mjs tests/unit-domain.test.ts tests/api-integration.test.ts",
     "typecheck": "npm run typecheck --workspace=packages/types && npm run typecheck --workspace=packages/shared && npm run typecheck --workspace=packages/schemas && npm run typecheck --workspace=packages/api-client && npm run typecheck --workspace=packages/ui && npm run typecheck --workspace=apps/mobile && npm run typecheck --workspace=apps/api && npm run typecheck --workspace=apps/admin && npm run typecheck --workspace=apps/web"
   },

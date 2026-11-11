@@ -595,4 +595,73 @@ test('API HTTP : Parcours complet MTN MoMo, idempotence, IDOR 403, webhook HMAC-
   });
   assert.equal(delOk.status, 202);
   assert.equal(delOk.json.accepted, true);
+
+  // Vérification découverte racine, santé API (/v1/health) et OpenAPI
+  const healthRes = await apiFetch('/v1/health');
+  assert.equal(healthRes.status, 200);
+  assert.equal(healthRes.json.name, 'Paiement BJ API');
+  assert.equal(healthRes.json.apiPrefix, '/v1');
+  assert.equal(healthRes.json.database.connected, false);
+  assert.equal(healthRes.json.status, 'degraded');
+
+  const rootDiscovery = await apiFetch('/');
+  assert.equal(rootDiscovery.status, 200);
+  assert.equal(rootDiscovery.json.healthUrl, '/v1/health');
+
+  const apiDiscovery = await apiFetch('/api');
+  assert.equal(apiDiscovery.status, 200);
+  assert.equal(apiDiscovery.json.docsUrl, '/api/docs');
+
+  const docsJsonRes = await apiFetch('/api/docs-json');
+  assert.equal(docsJsonRes.status, 200);
+  assert.ok(docsJsonRes.json?.openapi);
+});
+
+test('Intégration Serverless Vercel — Adaptateur apps/api/api/index.js sans app.listen()', async () => {
+  const http = require('node:http');
+  const prevNodeEnv = process.env.NODE_ENV;
+  const prevVercel = process.env.VERCEL;
+  process.env.NODE_ENV = 'test';
+  process.env.VERCEL = '1';
+
+  const vercelHandler = require('../apps/api/api/index.js');
+  assert.equal(typeof vercelHandler, 'function');
+  assert.equal(vercelHandler.config?.api?.bodyParser, false);
+
+  const serverlessHttp = http.createServer(vercelHandler);
+  await new Promise<void>((resolve) => serverlessHttp.listen(0, '127.0.0.1', () => resolve()));
+
+  try {
+    const addr = serverlessHttp.address();
+    const svUrl = `http://127.0.0.1:${addr.port}`;
+
+    const healthResp = await fetch(`${svUrl}/v1/health`);
+    assert.equal(healthResp.status, 200);
+    const healthJson: any = await healthResp.json();
+    assert.equal(healthJson.runtime, 'vercel-serverless');
+
+    const servicesResp = await fetch(`${svUrl}/v1/services`);
+    assert.equal(servicesResp.status, 200);
+    const servicesJson: any = await servicesResp.json();
+    assert.ok(Array.isArray(servicesJson) && servicesJson.length >= 6);
+
+    const swaggerHtml = await fetch(`${svUrl}/api/docs`);
+    assert.equal(swaggerHtml.status, 200);
+    const htmlBody = await swaggerHtml.text();
+    assert.ok(htmlBody.includes('Paiement BJ — API OpenAPI') && htmlBody.includes('swagger-ui.css'));
+
+    const swaggerInit = await fetch(`${svUrl}/api/docs/swagger-ui-init.js`);
+    assert.equal(swaggerInit.status, 200);
+  } finally {
+    await new Promise<void>((resolve) => serverlessHttp.close(() => resolve()));
+    if (prevNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = prevNodeEnv;
+    if (prevVercel === undefined) delete process.env.VERCEL;
+    else process.env.VERCEL = prevVercel;
+  }
+
+  // Vérification du point d'entrée racine unifié /api/index.js
+  const rootVercelHandler = require('../api/index.js');
+  assert.equal(typeof rootVercelHandler, 'function');
+  assert.equal(rootVercelHandler.config?.api?.bodyParser, false);
 });

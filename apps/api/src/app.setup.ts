@@ -20,6 +20,7 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
     .addTag('Notifications', 'Alertes de sécurité et suivi de statut des transactions')
     .addTag('Assistance et réclamations', 'Dépôt et suivi conversationnel des litiges usagers')
     .addTag('Back-Office Administrateur', 'Connexion opérateur RBAC, gouvernance, supervision et audit')
+    .addTag('Santé & Supervision', 'Disponibilité réelle de l’API et connectivité PostgreSQL')
     .build();
 
   return SwaggerModule.createDocument(app, config);
@@ -40,8 +41,10 @@ export function configureApp(app: INestApplication): OpenAPIObject {
   });
 
   const allowedOrigins = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
-    : '*';
+    ? process.env.CORS_ORIGINS.split(',')
+        .map((o) => o.trim().replace(/\/+$/, ''))
+        .filter(Boolean)
+    : true;
 
   app.enableCors({
     origin: allowedOrigins,
@@ -49,7 +52,34 @@ export function configureApp(app: INestApplication): OpenAPIObject {
     credentials: true,
   });
 
+  const httpAdapter = app.getHttpAdapter?.();
+  const expressInstance = httpAdapter?.getInstance?.();
+  if (expressInstance && typeof expressInstance.get === 'function') {
+    const apiDiscoveryPayload = () => ({
+      name: 'Paiement BJ API',
+      runtime: process.env.VERCEL ? 'vercel-serverless' : 'node-server',
+      apiPrefix: `/${apiPrefix}`,
+      healthUrl: `/${apiPrefix}/health`,
+      servicesUrl: `/${apiPrefix}/services`,
+      docsUrl: '/api/docs',
+      openApiJsonUrl: '/api/docs-json',
+    });
+
+    expressInstance.get(['/', '/api'], (_req: any, res: any) => {
+      res.status(200).json(apiDiscoveryPayload());
+    });
+
+    expressInstance.get('/healthz', (_req: any, res: any) => {
+      res.redirect(307, `/${apiPrefix}/health`);
+    });
+  }
+
   const document = buildOpenApiDocument(app);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    customSiteTitle: 'Paiement BJ — API OpenAPI',
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
   return document;
 }

@@ -8,6 +8,11 @@ dist/
 exports/
 build/
 .expo/
+.expo-test-subpath/
+.vercel/
+.vercel-dist/
+vercel-dist/
+dist-vercel/
 web-build/
 *.tsbuildinfo
 

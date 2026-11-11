@@ -751,6 +751,21 @@
           "Back-Office Administrateur"
         ]
       }
+    },
+    "/v1/health": {
+      "get": {
+        "operationId": "HealthController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "État opérationnel courant de la plateforme."
+          }
+        },
+        "summary": "Vérification honnête de disponibilité API et base PostgreSQL",
+        "tags": [
+          "Santé & Supervision"
+        ]
+      }
     }
   },
   "info": {
@@ -787,6 +802,10 @@
     {
       "name": "Back-Office Administrateur",
       "description": "Connexion opérateur RBAC, gouvernance, supervision et audit"
+    },
+    {
+      "name": "Santé & Supervision",
+      "description": "Disponibilité réelle de l’API et connectivité PostgreSQL"
     }
   ],
   "servers": [],

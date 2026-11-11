@@ -1,0 +1,49 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "cleanUrls": true,
+  "installCommand": "cd ../.. && npm install --legacy-peer-deps",
+  "buildCommand": "cd ../.. && npm run build:packages && cd apps/mobile && npx expo export --platform web --output-dir dist --clear",
+  "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
+      ]
+    },
+    {
+      "source": "/_expo/static/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/service/:id", "destination": "/service/[id].html" },
+    { "source": "/transaction/:id", "destination": "/transaction/[id].html" },
+    { "source": "/auth", "destination": "/auth/index.html" },
+    { "source": "/auth/otp", "destination": "/auth/otp.html" },
+    { "source": "/international", "destination": "/international/index.html" },
+    { "source": "/transfers", "destination": "/transfers/index.html" },
+    { "source": "/support", "destination": "/support/index.html" },
+    { "source": "/support/faq", "destination": "/support/faq.html" },
+    { "source": "/payment/confirm", "destination": "/payment/confirm.html" },
+    { "source": "/payment/select-provider", "destination": "/payment/select-provider.html" },
+    { "source": "/profile/devices", "destination": "/profile/devices.html" },
+    { "source": "/profile/identity", "destination": "/profile/identity.html" },
+    { "source": "/profile/settings", "destination": "/profile/settings.html" },
+    { "source": "/services", "destination": "/services.html" },
+    { "source": "/activity", "destination": "/activity.html" },
+    { "source": "/profile", "destination": "/profile.html" },
+    { "source": "/((?!_expo/|assets/).*)", "destination": "/index.html" }
+  ]
+}

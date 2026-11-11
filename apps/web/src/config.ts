@@ -12,6 +12,9 @@ export interface DistributionConfig {
 function normalizeUrl(raw: string | undefined): string | null {
   const trimmed = (raw || '').trim();
   if (!trimmed) return null;
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
+    return trimmed;
+  }
   try {
     const parsed = new URL(trimmed);
     if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {

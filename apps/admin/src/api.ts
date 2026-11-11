@@ -4,9 +4,29 @@ import { AdminUserInfo } from '@paiementbj/types';
 const TOKEN_STORAGE_KEY = 'paiementbj_admin_token';
 const USER_STORAGE_KEY = 'paiementbj_admin_user';
 
-const envBase =
-  (import.meta as unknown as { env?: Record<string, string | undefined> }).env?.VITE_API_URL;
-export const ADMIN_API_BASE = envBase || 'http://localhost:4000/v1';
+function resolveAdminApiBase(): string {
+  const envBase = (
+    (import.meta as unknown as { env?: Record<string, string | undefined> }).env?.VITE_API_URL || ''
+  ).trim();
+  if (envBase) {
+    return envBase.replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location) {
+    const { hostname, protocol, pathname, port } = window.location;
+    const mountedViaGateway = pathname === '/admin' || pathname.startsWith('/admin/');
+    if (
+      protocol.startsWith('http') &&
+      hostname &&
+      ((hostname !== 'localhost' && hostname !== '127.0.0.1') ||
+        (mountedViaGateway && port !== '4102'))
+    ) {
+      return '/v1';
+    }
+  }
+  return 'http://localhost:4000/v1';
+}
+
+export const ADMIN_API_BASE = resolveAdminApiBase();
 
 let unauthorizedHandler: (() => void) | null = null;
 

@@ -71,3 +71,54 @@ Les profils (`development`, `preview`, `production`) sont configurés dans `apps
   cd apps/mobile
   npx expo export --platform web --output-dir dist
   ```
+
+---
+
+## 5. Déploiement sur Vercel (Serveur Backend + Landing App Distribution + Apps)
+
+Le monorepo est configuré pour fonctionner sur Vercel selon deux architectures complémentaires :
+
+### Option A — Projet Vercel Services unifié (recommandé — `vercel.json` à la racine)
+
+Le fichier `vercel.json` à la racine déclare quatre services indépendants (`services`) orchestrés au sein d'un seul projet Vercel et routés sur un domaine unique via `rewrites` :
+
+| Service (`services.<nom>`) | Répertoire `root` | Chemins publics (`rewrites`) | Rôle & Configuration Vercel |
+| :--- | :--- | :--- | :--- |
+| `web` | `apps/web` | `/(.*)` (catch-all final) | Landing **App Distribution** Vite (`build:vercel`, `VITE_WEB_APP_URL=/app` par défaut) |
+| `mobile` | `apps/mobile` | `/app`, `/app/(.*)` | Application citoyenne **Web** Expo (`build:vercel`, `EXPO_PUBLIC_WEB_BASE_URL=/app`) |
+| `admin` | `apps/admin` | `/admin`, `/admin/(.*)` | Console **Admin RBAC** Vite (`build:vercel --base=/admin/`, `noindex`) |
+| `api` | `apps/api` | `/v1`, `/v1/(.*)`, `/api`, `/api/(.*)`, `/healthz` | Backend **NestJS** (`framework: "nestjs"`, `entrypoint: "src/main.ts"`) |
+
+- **Bindings inter-services** : Aucun service frontend ne possède de fonction serveur / SSR effectuant des appels backend côté serveur ; `web`, `admin` et `mobile` s'exécutent dans le navigateur et consomment l'API publique sur le même domaine (`/v1`). Par conséquent, aucun bloc `bindings` n'est activé tant que les frontends restent statiques.
+- **Test local unifié** : Exécuter `vercel dev` à la racine pour démarrer les 4 services ensemble avec le routage complet (`http://localhost:3000/`, `/app`, `/admin`, `/v1`). En mode passerelle locale `/app` ou `/admin`, `apps/mobile` et `apps/admin` basculent automatiquement sur `/v1`.
+- **Bundle autonome précompilé (`exports/paiementbj-vercel/`)** : Pour déployer un bundle déjà buildé sans mode `services` (via `api/index.js` + `public/`), exécuter :
+  ```bash
+  npm run export:apps
+  cd exports/paiementbj-vercel && vercel --prod
+  ```
+
+
+### Option B — Déploiements séparés (4 projets Vercel dédiés)
+
+Chaque application possède son propre `vercel.json` dans `apps/<app>/` ainsi que son export autonome dans `exports/` :
+
+1. **Serveur Backend API (`apps/api` ou `exports/paiementbj-api`)** — Root Directory : `apps/api`
+   - Point d'entrée Serverless : `apps/api/api/index.js` -> `dist/src/vercel.js` (`bodyParser: false` pour préserver `rawBody` HMAC-SHA256)
+   - Routes publiques : `/`, `/v1/health`, `/v1/*`, `/api/docs`, `/api/docs-json`
+2. **Landing Page App Distribution (`apps/web` ou `exports/paiementbj-distribution`)** — Root Directory : `apps/web`
+   - Variables optionnelles : `VITE_PLAY_STORE_URL`, `VITE_APP_STORE_URL`, `VITE_WEB_APP_URL`
+3. **Application Citoyenne Web (`apps/mobile` ou `exports/paiementbj-web`)** — Root Directory : `apps/mobile`
+   - Variable obligatoire en mode séparé : `EXPO_PUBLIC_API_URL=https://<backend>.vercel.app/v1`
+4. **Console d'Administration RBAC (`apps/admin` ou `exports/paiementbj-admin`)** — Root Directory : `apps/admin`
+   - Variable obligatoire en mode séparé : `VITE_API_URL=https://<backend>.vercel.app/v1`
+
+### Variables d'environnement Vercel obligatoires pour le Backend (`apps/api` / racine)
+
+- `NODE_ENV=production`
+- `DATABASE_URL` (PostgreSQL managé Vercel Postgres / Neon / Supabase — Prisma génère `native` + `rhel-openssl-3.0.x`)
+- `JWT_ACCESS_SECRET` et `JWT_REFRESH_SECRET` (>= 32 caractères aléatoires distincts ; fail-closed si absents)
+- `SMS_PROVIDER` (`local_telecom` / `infobip` / `twilio`) + `SMS_API_KEY` (ne jamais laisser `sandbox` en production publique)
+- `CORS_ORIGINS` (ex. `https://paiementbj.vercel.app,https://app.paiement.bj,https://admin.paiement.bj`)
+- `ADMIN_BOOTSTRAP_EMAIL` et `ADMIN_BOOTSTRAP_PASSWORD_HASH` (si aucun compte `AdminUser` n'est encore créé en base)
+- Secrets webhooks HMAC (`MTN_MOMO_WEBHOOK_SECRET`, `MOOV_MONEY_WEBHOOK_SECRET`, `CELTIIS_CASH_WEBHOOK_SECRET`, `CARD_GATEWAY_WEBHOOK_SECRET`, `TRESOR_PUBLIC_WEBHOOK_SECRET`)
+

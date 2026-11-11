@@ -109,3 +109,77 @@ test('5. Vérification présence des livrables documentaires obligatoires', () =
     assert.equal(fs.existsSync(path.resolve(process.cwd(), doc)), true, `Document manquant : ${doc}`);
   }
 });
+
+test('6. Vérification des configurations et points d’entrée Vercel', () => {
+  const vercelConfigs = [
+    'vercel.json',
+    'apps/api/vercel.json',
+    'apps/web/vercel.json',
+    'apps/mobile/vercel.json',
+    'apps/admin/vercel.json',
+  ];
+
+  for (const relPath of vercelConfigs) {
+    const absPath = path.resolve(process.cwd(), relPath);
+    assert.equal(fs.existsSync(absPath), true, `Configuration Vercel manquante : ${relPath}`);
+    const parsed = JSON.parse(fs.readFileSync(absPath, 'utf8'));
+    assert.ok(Array.isArray(parsed.rewrites), `Rewrites manquants dans ${relPath}`);
+  }
+
+  for (const entryPath of [
+    'api/index.js',
+    'apps/api/api/index.js',
+    '.npmrc',
+    'scripts/build-vercel.mjs',
+    'scripts/vercel-service.mjs',
+  ]) {
+    assert.equal(
+      fs.existsSync(path.resolve(process.cwd(), entryPath)),
+      true,
+      `Fichier Vercel requis manquant : ${entryPath}`
+    );
+  }
+
+  const rootVercel = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'vercel.json'), 'utf8'));
+  assert.ok(rootVercel.services && typeof rootVercel.services === 'object', 'Bloc services manquant dans vercel.json racine');
+
+  for (const forbiddenTopKey of [
+    'framework',
+    'installCommand',
+    'buildCommand',
+    'devCommand',
+    'ignoreCommand',
+    'outputDirectory',
+    'functions',
+  ]) {
+    assert.equal(
+      Object.prototype.hasOwnProperty.call(rootVercel, forbiddenTopKey),
+      false,
+      `Clé interdite au niveau racine en mode services : ${forbiddenTopKey}`
+    );
+  }
+
+  for (const serviceName of ['web', 'admin', 'mobile', 'api']) {
+    assert.match(serviceName, /^[a-z]([a-z_-]*[a-z])?$/);
+    assert.ok(rootVercel.services[serviceName]?.root, `Service ${serviceName} incomplet dans vercel.json`);
+  }
+
+  assert.equal(rootVercel.services.api.framework, 'nestjs');
+  assert.equal(rootVercel.services.api.entrypoint, 'src/main.ts');
+
+  assert.ok(
+    rootVercel.rewrites.some((r) => r.source === '/v1/(.*)' && r.destination?.service === 'api'),
+    'Rewrite backend /v1/(.*) vers service api manquante dans vercel.json racine'
+  );
+  assert.ok(
+    rootVercel.rewrites.some((r) => r.source === '/admin/(.*)' && r.destination?.service === 'admin'),
+    'Rewrite admin /admin/(.*) vers service admin manquante dans vercel.json racine'
+  );
+  assert.ok(
+    rootVercel.rewrites.some((r) => r.source === '/app/(.*)' && r.destination?.service === 'mobile'),
+    'Rewrite mobile /app/(.*) vers service mobile manquante dans vercel.json racine'
+  );
+  const lastRewrite = rootVercel.rewrites[rootVercel.rewrites.length - 1];
+  assert.equal(lastRewrite?.source, '/(.*)');
+  assert.equal(lastRewrite?.destination?.service, 'web');
+});

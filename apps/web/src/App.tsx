@@ -66,8 +66,8 @@ export default function App() {
             {webUrl ? (
               <a
                 href={webUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={webUrl.startsWith('/') ? undefined : '_blank'}
+                rel={webUrl.startsWith('/') ? undefined : 'noopener noreferrer'}
                 className="topbar-web-link"
               >
                 <WebGlobeIcon />
@@ -194,8 +194,8 @@ export default function App() {
             {webUrl ? (
               <a
                 href={webUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={webUrl.startsWith('/') ? undefined : '_blank'}
+                rel={webUrl.startsWith('/') ? undefined : 'noopener noreferrer'}
                 className="cta-web-secondary"
               >
                 <WebGlobeIcon />
