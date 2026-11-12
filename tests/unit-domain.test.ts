@@ -49,17 +49,20 @@ test('Devise FCFA : Formatage UEMOA avec séparateurs de milliers', () => {
   assert.equal(formatCurrency(150.5, 'EUR'), '150,50 €');
 });
 
-test('Contraste thème Bleu Roi & Jaune : Paires critiques UI', () => {
+test('Contraste thème Bleu Royal #1746A2 & Jaune #FFC928 : Paires critiques UI', () => {
   const aaaPairs: Array<[string, string]> = [
-    ['#FFFFFF', '#2446B8'],
-    ['#FFFFFF', '#13255E'],
-    ['#10214D', '#FEBF2E'],
-    ['#111D3D', '#FFFFFF'],
-    ['#39486A', '#FFFFFF'],
-    ['#39486A', '#F6F8FC'],
-    ['#0A522E', '#E8F6EE'],
-    ['#8A1919', '#FCEAEA'],
-    ['#6B3B00', '#FFF4D6'],
+    ['#FFFFFF', '#1746A2'],
+    ['#FFFFFF', '#123B7A'],
+    ['#123B7A', '#FFC928'],
+    ['#14213D', '#FFFFFF'],
+    ['#14213D', '#F5F8FF'],
+    ['#14213D', '#EAF0FF'],
+    ['#14213D', '#FFF7D6'],
+    ['#40516B', '#FFFFFF'],
+    ['#40516B', '#F5F8FF'],
+    ['#115A34', '#E8F6EE'],
+    ['#8B1E2D', '#FDF0F2'],
+    ['#654400', '#FFF7D6'],
   ];
 
   for (const [fg, bg] of aaaPairs) {
@@ -68,9 +71,8 @@ test('Contraste thème Bleu Roi & Jaune : Paires critiques UI', () => {
     assert.equal(res.passesWcagAAANormal, true);
   }
 
-  const heroContrast = calculateContrastRatio('#FFFFFF', '#4169E1');
-  assert.ok(heroContrast.ratio >= 4.5, `Contraste Hero ${heroContrast.ratio.toFixed(2)}`);
-  assert.equal(heroContrast.passesWcagAANormal, true);
+  const borderContrast = calculateContrastRatio('#7185A5', '#FFFFFF');
+  assert.ok(borderContrast.ratio >= 3.0, `Contraste bordure/contrôle ${borderContrast.ratio.toFixed(2)}`);
 });
 
 test('Schémas Zod (@paiementbj/schemas) : Validation OTP, Paiement, Support et Suppression APDP', () => {

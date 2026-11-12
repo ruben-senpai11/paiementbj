@@ -7,45 +7,45 @@
    ========================================================================== */
 
 :root {
-  /* Identité Hero & Charte Principale : Bleu Roi + Jaune Or */
-  --pbj-royal: #4169E1;
-  --pbj-royal-deep: #2446B8;
-  --pbj-royal-dark: #13255E;
-  --pbj-royal-soft: #EEF2FD;
-  --pbj-royal-tint: #F4F7FE;
+  /* Identité Hero & Charte Principale : Bleu Royal #1746A2 + Jaune #FFC928 */
+  --pbj-royal: #1746A2;
+  --pbj-royal-deep: #123B7A;
+  --pbj-royal-dark: #14213D;
+  --pbj-royal-soft: #EAF0FF;
+  --pbj-royal-tint: #EAF0FF;
 
-  --pbj-yellow: #FEBF2E;
-  --pbj-yellow-hover: #F2AD0E;
-  --pbj-yellow-soft: #FFF5D6;
-  --pbj-yellow-ink: #10214D;
+  --pbj-yellow: #FFC928;
+  --pbj-yellow-hover: #E8B310;
+  --pbj-yellow-soft: #FFF7D6;
+  --pbj-yellow-ink: #123B7A;
 
   /* Surfaces & Fonds */
-  --pbj-bg: #F6F8FC;
+  --pbj-bg: #F5F8FF;
   --pbj-surface: #FFFFFF;
-  --pbj-surface-subtle: #EDF1FA;
+  --pbj-surface-subtle: #EAF0FF;
 
   /* Typographie & Contrastes */
-  --pbj-ink: #111D3D;
-  --pbj-ink-secondary: #39486A;
-  --pbj-ink-muted: #516080;
+  --pbj-ink: #14213D;
+  --pbj-ink-secondary: #40516B;
+  --pbj-ink-muted: #40516B;
   --pbj-ink-on-primary: #FFFFFF;
 
   /* Bordures & Focus */
-  --pbj-border: #D9E1F2;
-  --pbj-border-subtle: #E7ECF7;
-  --pbj-border-focused: #2446B8;
-  --pbj-focus-ring: #4169E1;
-  --pbj-disabled-bg: #E6EAF5;
-  --pbj-disabled-border: #BAC4DC;
-  --pbj-disabled-ink: #475577;
+  --pbj-border: #7185A5;
+  --pbj-border-subtle: #D5DFEE;
+  --pbj-border-focused: #1746A2;
+  --pbj-focus-ring: #1746A2;
+  --pbj-disabled-bg: #EAF0FF;
+  --pbj-disabled-border: #7185A5;
+  --pbj-disabled-ink: #40516B;
 
   /* Statuts sémantiques */
-  --pbj-success: #0E6A42;
+  --pbj-success: #115A34;
   --pbj-success-soft: #E8F6EE;
-  --pbj-warning: #7A4B00;
-  --pbj-warning-soft: #FFF4D6;
-  --pbj-danger: #9E1C1C;
-  --pbj-danger-soft: #FCEAEA;
+  --pbj-warning: #654400;
+  --pbj-warning-soft: #FFF7D6;
+  --pbj-danger: #8B1E2D;
+  --pbj-danger-soft: #FDF0F2;
 
   /* Emblème national (filet bas de page & reçu) */
   --pbj-flag-green: #008751;
@@ -64,9 +64,9 @@
   --pbj-radius-hero-media: 72px 14px;
   --pbj-radius-pill: 999px;
 
-  --pbj-shadow-sm: 0 4px 16px rgba(17, 29, 61, 0.05);
-  --pbj-shadow-md: 0 12px 32px rgba(17, 29, 61, 0.08);
-  --pbj-shadow-lg: 0 22px 54px rgba(17, 29, 61, 0.14);
+  --pbj-shadow-sm: 0 4px 16px rgba(20, 33, 61, 0.05);
+  --pbj-shadow-md: 0 12px 32px rgba(20, 33, 61, 0.08);
+  --pbj-shadow-lg: 0 22px 54px rgba(20, 33, 61, 0.14);
 
   --pbj-container-max: 1180px;
 }

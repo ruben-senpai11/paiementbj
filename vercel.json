@@ -9,7 +9,7 @@
       "devCommand": "npm run dev:vercel",
       "outputDirectory": "dist",
       "rewrites": [
-        { "source": "/(.*)", "destination": "/index.html" }
+        { "source": "/((?!assets/|.*\\.[^/]+$).*)", "destination": "/index.html" }
       ]
     },
     "admin": {
@@ -20,7 +20,9 @@
       "devCommand": "npm run dev:vercel",
       "outputDirectory": "dist",
       "rewrites": [
-        { "source": "/(.*)", "destination": "/index.html" }
+        { "source": "/admin", "destination": "/admin/index.html" },
+        { "source": "/admin/", "destination": "/admin/index.html" },
+        { "source": "/admin/((?!assets/|.*\\.[^/]+$).*)", "destination": "/admin/index.html" }
       ]
     },
     "mobile": {
@@ -31,23 +33,25 @@
       "outputDirectory": "dist",
       "cleanUrls": true,
       "rewrites": [
-        { "source": "/service/:id", "destination": "/service/[id].html" },
-        { "source": "/transaction/:id", "destination": "/transaction/[id].html" },
-        { "source": "/auth", "destination": "/auth/index.html" },
-        { "source": "/auth/otp", "destination": "/auth/otp.html" },
-        { "source": "/international", "destination": "/international/index.html" },
-        { "source": "/transfers", "destination": "/transfers/index.html" },
-        { "source": "/support", "destination": "/support/index.html" },
-        { "source": "/support/faq", "destination": "/support/faq.html" },
-        { "source": "/payment/confirm", "destination": "/payment/confirm.html" },
-        { "source": "/payment/select-provider", "destination": "/payment/select-provider.html" },
-        { "source": "/profile/devices", "destination": "/profile/devices.html" },
-        { "source": "/profile/identity", "destination": "/profile/identity.html" },
-        { "source": "/profile/settings", "destination": "/profile/settings.html" },
-        { "source": "/services", "destination": "/services.html" },
-        { "source": "/activity", "destination": "/activity.html" },
-        { "source": "/profile", "destination": "/profile.html" },
-        { "source": "/((?!_expo/|assets/).*)", "destination": "/index.html" }
+        { "source": "/app", "destination": "/app/index.html" },
+        { "source": "/app/", "destination": "/app/index.html" },
+        { "source": "/app/service/:id", "destination": "/app/service/[id].html" },
+        { "source": "/app/transaction/:id", "destination": "/app/transaction/[id].html" },
+        { "source": "/app/auth", "destination": "/app/auth/index.html" },
+        { "source": "/app/auth/otp", "destination": "/app/auth/otp.html" },
+        { "source": "/app/international", "destination": "/app/international/index.html" },
+        { "source": "/app/transfers", "destination": "/app/transfers/index.html" },
+        { "source": "/app/support", "destination": "/app/support/index.html" },
+        { "source": "/app/support/faq", "destination": "/app/support/faq.html" },
+        { "source": "/app/payment/confirm", "destination": "/app/payment/confirm.html" },
+        { "source": "/app/payment/select-provider", "destination": "/app/payment/select-provider.html" },
+        { "source": "/app/profile/devices", "destination": "/app/profile/devices.html" },
+        { "source": "/app/profile/identity", "destination": "/app/profile/identity.html" },
+        { "source": "/app/profile/settings", "destination": "/app/profile/settings.html" },
+        { "source": "/app/services", "destination": "/app/services.html" },
+        { "source": "/app/activity", "destination": "/app/activity.html" },
+        { "source": "/app/profile", "destination": "/app/profile.html" },
+        { "source": "/app/((?!_expo/|assets/|.*\\.[^/]+$).*)", "destination": "/app/index.html" }
       ]
     },
     "api": {
@@ -148,19 +152,19 @@
     },
     {
       "source": "/app",
-      "destination": { "service": "mobile", "path": "/" }
+      "destination": { "service": "mobile" }
     },
     {
       "source": "/app/(.*)",
-      "destination": { "service": "mobile", "path": "/$1" }
+      "destination": { "service": "mobile" }
     },
     {
       "source": "/admin",
-      "destination": { "service": "admin", "path": "/" }
+      "destination": { "service": "admin" }
     },
     {
       "source": "/admin/(.*)",
-      "destination": { "service": "admin", "path": "/$1" }
+      "destination": { "service": "admin" }
     },
     {
       "source": "/(.*)",

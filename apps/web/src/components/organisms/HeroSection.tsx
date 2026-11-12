@@ -1,5 +1,6 @@
 import React from 'react';
 import { DISTRIBUTION_CONFIG } from '../../config';
+import { IPhoneMockup } from '../molecules/IPhoneMockup';
 import { StoreDownloadGroup } from '../molecules/StoreDownloadGroup';
 
 export interface HeroSectionProps {
@@ -31,50 +32,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onPendingStore }) => {
         </div>
 
         <div className="civic-hero-media-col">
-          <div className="civic-portrait-frame" aria-label="Aperçu de l’application Paiement BJ">
-            <div className="hero-phone-preview">
-              <div className="hero-phone-head">
-                <span className="hero-phone-title">Paiement BJ</span>
-                <span className="hero-phone-sub">Catalogue national</span>
-              </div>
-
-              <div className="hero-phone-list">
-                <div className="hero-phone-row">
-                  <div>
-                    <strong>SBEE · Recharge ISAGO</strong>
-                    <span>Électricité prépayée</span>
-                  </div>
-                  <span className="hero-phone-arrow">→</span>
-                </div>
-                <div className="hero-phone-row">
-                  <div>
-                    <strong>Trésor Public · Timbres fiscaux</strong>
-                    <span>Démarches administratives</span>
-                  </div>
-                  <span className="hero-phone-arrow">→</span>
-                </div>
-                <div className="hero-phone-row">
-                  <div>
-                    <strong>SONEB · Facture d’eau</strong>
-                    <span>Règlement immédiat</span>
-                  </div>
-                  <span className="hero-phone-arrow">→</span>
-                </div>
-              </div>
-
-              <div className="hero-phone-confirm">
-                <div>
-                  <span className="hero-confirm-kicker">Dernier règlement</span>
-                  <strong>15 050 FCFA · MTN Mobile Money</strong>
-                </div>
-                <span className="hero-confirm-check" aria-hidden="true">✓</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="civic-portrait-note">
-            <p>Un guichet unique sur mobile et navigateur pour l’ensemble de vos règlements.</p>
-          </div>
+          <IPhoneMockup
+            src="/images/paiement-bj-mobile.png"
+            alt="Application mobile Paiement BJ"
+          />
         </div>
       </div>
     </section>

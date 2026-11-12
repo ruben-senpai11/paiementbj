@@ -39,7 +39,7 @@ const SERVICE_RUNNERS = {
     defaultEnv: () => ({
       VITE_BASE_PATH: process.env.VITE_BASE_PATH || '/admin/',
     }),
-    buildArgs: () => ['build', '--base', process.env.VITE_BASE_PATH || '/admin/'],
+    buildArgs: () => ['build', '--base', process.env.VITE_BASE_PATH || '/admin/', '--outDir', 'dist/admin', '--emptyOutDir'],
     devArgs: () => ['--port', process.env.PORT || '3001'],
   },
   mobile: {
@@ -48,7 +48,7 @@ const SERVICE_RUNNERS = {
     defaultEnv: () => ({
       EXPO_PUBLIC_WEB_BASE_URL: process.env.EXPO_PUBLIC_WEB_BASE_URL || '/app',
     }),
-    buildArgs: () => ['export', '--platform', 'web', '--output-dir', 'dist', '--clear'],
+    buildArgs: () => ['export', '--platform', 'web', '--output-dir', 'dist/app', '--clear'],
     devArgs: () => ['start', '--web', '--port', process.env.PORT || '8081'],
   },
 };

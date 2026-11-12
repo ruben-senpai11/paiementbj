@@ -32,47 +32,47 @@ function syncTheme() {
   const v = parseCssCustomProperties(css);
 
   const tokens = {
-    // Identité Bleu Roi (#4169E1) & Jaune Or (#FEBF2E)
-    primary: getVar(v, '--pbj-royal', '#4169E1'),
-    primaryDeep: getVar(v, '--pbj-royal-deep', '#2446B8'),
-    primaryDark: getVar(v, '--pbj-royal-dark', '#13255E'),
-    primarySoft: getVar(v, '--pbj-royal-soft', '#EEF2FD'),
-    backgroundMint: getVar(v, '--pbj-royal-tint', '#F4F7FE'),
+    // Identité Bleu Royal (#1746A2) & Jaune (#FFC928)
+    primary: getVar(v, '--pbj-royal', '#1746A2'),
+    primaryDeep: getVar(v, '--pbj-royal-deep', '#123B7A'),
+    primaryDark: getVar(v, '--pbj-royal-dark', '#14213D'),
+    primarySoft: getVar(v, '--pbj-royal-soft', '#EAF0FF'),
+    backgroundMint: getVar(v, '--pbj-royal-tint', '#EAF0FF'),
 
     // Textes
-    text: getVar(v, '--pbj-ink', '#111D3D'),
-    textSecondary: getVar(v, '--pbj-ink-secondary', '#39486A'),
-    textMuted: getVar(v, '--pbj-ink-muted', '#516080'),
+    text: getVar(v, '--pbj-ink', '#14213D'),
+    textSecondary: getVar(v, '--pbj-ink-secondary', '#40516B'),
+    textMuted: getVar(v, '--pbj-ink-muted', '#40516B'),
     textOnPrimary: getVar(v, '--pbj-ink-on-primary', '#FFFFFF'),
-    heroSubtext: '#E6ECFC',
+    heroSubtext: '#EAF0FF',
 
     // Fonds
-    background: getVar(v, '--pbj-bg', '#F6F8FC'),
+    background: getVar(v, '--pbj-bg', '#F5F8FF'),
     surface: getVar(v, '--pbj-surface', '#FFFFFF'),
-    surfaceSubtle: getVar(v, '--pbj-surface-subtle', '#EDF1FA'),
+    surfaceSubtle: getVar(v, '--pbj-surface-subtle', '#EAF0FF'),
 
     // Accent Jaune Primary Hero
-    accent: getVar(v, '--pbj-yellow', '#FEBF2E'),
-    accentHover: getVar(v, '--pbj-yellow-hover', '#F2AD0E'),
-    accentSoft: getVar(v, '--pbj-yellow-soft', '#FFF5D6'),
-    accentDark: getVar(v, '--pbj-yellow-ink', '#10214D'),
+    accent: getVar(v, '--pbj-yellow', '#FFC928'),
+    accentHover: getVar(v, '--pbj-yellow-hover', '#E8B310'),
+    accentSoft: getVar(v, '--pbj-yellow-soft', '#FFF7D6'),
+    accentDark: getVar(v, '--pbj-yellow-ink', '#123B7A'),
 
     // Bordures & états désactivés
-    border: getVar(v, '--pbj-border', '#D9E1F2'),
-    borderSubtle: getVar(v, '--pbj-border-subtle', '#E7ECF7'),
-    borderFocused: getVar(v, '--pbj-border-focused', '#2446B8'),
-    focusRing: getVar(v, '--pbj-focus-ring', '#4169E1'),
-    disabledBackground: getVar(v, '--pbj-disabled-bg', '#E6EAF5'),
-    disabledBorder: getVar(v, '--pbj-disabled-border', '#BAC4DC'),
-    disabledText: getVar(v, '--pbj-disabled-ink', '#475577'),
+    border: getVar(v, '--pbj-border', '#7185A5'),
+    borderSubtle: getVar(v, '--pbj-border-subtle', '#D5DFEE'),
+    borderFocused: getVar(v, '--pbj-border-focused', '#1746A2'),
+    focusRing: getVar(v, '--pbj-focus-ring', '#1746A2'),
+    disabledBackground: getVar(v, '--pbj-disabled-bg', '#EAF0FF'),
+    disabledBorder: getVar(v, '--pbj-disabled-border', '#7185A5'),
+    disabledText: getVar(v, '--pbj-disabled-ink', '#40516B'),
 
     // Statuts
-    success: getVar(v, '--pbj-success', '#0E6A42'),
+    success: getVar(v, '--pbj-success', '#115A34'),
     successSoft: getVar(v, '--pbj-success-soft', '#E8F6EE'),
-    warning: getVar(v, '--pbj-warning', '#7A4B00'),
-    warningSoft: getVar(v, '--pbj-warning-soft', '#FFF4D6'),
-    danger: getVar(v, '--pbj-danger', '#9E1C1C'),
-    dangerSoft: getVar(v, '--pbj-danger-soft', '#FCEAEA'),
+    warning: getVar(v, '--pbj-warning', '#654400'),
+    warningSoft: getVar(v, '--pbj-warning-soft', '#FFF7D6'),
+    danger: getVar(v, '--pbj-danger', '#8B1E2D'),
+    dangerSoft: getVar(v, '--pbj-danger-soft', '#FDF0F2'),
 
     // Drapeau national
     beninGreen: getVar(v, '--pbj-flag-green', '#008751'),
@@ -80,8 +80,8 @@ function syncTheme() {
     beninRed: getVar(v, '--pbj-flag-red', '#E8112D'),
 
     // Neutres UI
-    neutralStroke: getVar(v, '--pbj-border-subtle', '#E7ECF7'),
-    skeleton: '#DDE4F3',
+    neutralStroke: getVar(v, '--pbj-border-subtle', '#D5DFEE'),
+    skeleton: '#DCE5F5',
   };
 
   const output = `// FICHIER GÉNÉRÉ AUTOMATIQUEMENT PAR scripts/sync-theme.mjs

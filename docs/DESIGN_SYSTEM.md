@@ -8,23 +8,23 @@
 
 ## 1. Palette de Couleurs & Contraste WCAG 2.2 AAA
 
-Définie dans [`packages/ui/src/tokens/colors.ts`](../../packages/ui/src/tokens/colors.ts) :
+Définie dans [`packages/ui/src/tokens/theme.css`](../../packages/ui/src/tokens/theme.css) et synchronisée vers [`packages/ui/src/tokens/colors.ts`](../../packages/ui/src/tokens/colors.ts) :
 
 | Token | Valeur Hex | Rôle Sémantique | Combinaison Vérifiée | Ratio Calculé | Seuil |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `primary` | `#064B32` | Vert institutionnel principal (actions primaires) | `#FFFFFF` sur `#064B32` | **10.19 : 1** | >= 7.0:1 (AAA) |
-| `primaryDeep` | `#003F2B` | Vert profond (en-têtes Hero, barre latérale Admin, focus) | `#FFFFFF` sur `#003F2B` | **12.03 : 1** | >= 7.0:1 (AAA) |
-| `primarySoft` | `#E8F1EA` | Surface d'accentuation douce | `#123B2F` sur `#E8F1EA` | **11.15 : 1** | >= 7.0:1 (AAA) |
-| `background` | `#F5F8F4` | Fond général d'écran apaisant | `#123B2F` sur `#F5F8F4` | **11.59 : 1** | >= 7.0:1 (AAA) |
-| `surface` | `#FFFFFF` | Cartes, formulaires et conteneurs | `#123B2F` sur `#FFFFFF` | **12.41 : 1** | >= 7.0:1 (AAA) |
-| `text` | `#123B2F` | Texte principal haute lisibilité | sur `#FFFFFF` / `#F5F8F4` | **>= 11.5 : 1** | >= 7.0:1 (AAA) |
-| `textSecondary` | `#384C42` | Sous-titres et libellés explicatifs | sur `#FFFFFF` / `#F5F8F4` | **>= 8.5 : 1** | >= 7.0:1 (AAA) |
-| `textMuted` | `#43574E` | Horodatages et notes secondaires | sur `#FFFFFF` / `#F5F8F4` | **>= 7.23 : 1** | >= 7.0:1 (AAA) |
-| `accent` | `#FFC52C` | Or solaire béninois (CTA sur fond sombre, focus ring Web) | `#003F2B` sur `#FFC52C` | **8.49 : 1** | >= 7.0:1 (AAA) |
-| `success` / `successSoft` | `#0A522E` / `#E6F4EC` | Statuts confirmés (`SUCCEEDED`, `LIVE`) | `#0A522E` sur `#E6F4EC` | **8.20 : 1** | >= 7.0:1 (AAA) |
-| `warning` / `warningSoft` | `#6B3B00` / `#FFF4D6` | États d'attente (`PENDING`, `PENDING_AGREEMENT`) | `#6B3B00` sur `#FFF4D6` | **8.51 : 1** | >= 7.0:1 (AAA) |
-| `danger` / `dangerSoft` | `#8A1919` / `#FCE8E8` | Erreurs et états indisponibles (`FAILED`, `UNAVAILABLE`) | `#8A1919` sur `#FCE8E8` | **7.99 : 1** | >= 7.0:1 (AAA) |
-| État désactivé bouton | `#2E3E37` / `#E2EAE3` | Bouton inactif sans dégradation par opacité transparente | `#2E3E37` sur `#E2EAE3` | **9.07 : 1** | >= 7.0:1 (AAA) |
+| `primary` | `#1746A2` | Bleu Royal principal (Hero, header, actions primaires) | `#FFFFFF` sur `#1746A2` | **8.63 : 1** | >= 7.0:1 (AAA) |
+| `primaryDeep` | `#123B7A` | Bleu Royal profond (hover CTA, encre sur jaune) | `#FFFFFF` sur `#123B7A` | **10.87 : 1** | >= 7.0:1 (AAA) |
+| `primarySoft` | `#EAF0FF` | Surface bleue douce et badges neutres | `#14213D` sur `#EAF0FF` | **14.00 : 1** | >= 7.0:1 (AAA) |
+| `background` | `#F5F8FF` | Fond général d'écran apaisant | `#14213D` sur `#F5F8FF` | **15.03 : 1** | >= 7.0:1 (AAA) |
+| `surface` | `#FFFFFF` | Cartes, formulaires et conteneurs | `#14213D` sur `#FFFFFF` | **15.97 : 1** | >= 7.0:1 (AAA) |
+| `text` | `#14213D` | Texte principal Navy haute lisibilité | sur `#FFFFFF` / `#F5F8FF` | **>= 15.03 : 1** | >= 7.0:1 (AAA) |
+| `textSecondary` | `#40516B` | Sous-titres et libellés explicatifs | sur `#FFFFFF` / `#F5F8FF` | **>= 7.58 : 1** | >= 7.0:1 (AAA) |
+| `accent` | `#FFC928` | Jaune Accent (CTA Hero & focus) | `#123B7A` sur `#FFC928` | **7.06 : 1** | >= 7.0:1 (AAA) |
+| `accentSoft` | `#FFF7D6` | Surface jaune douce | `#14213D` sur `#FFF7D6` | **14.85 : 1** | >= 7.0:1 (AAA) |
+| `border` | `#7185A5` | Bordures de champs et contrôles UI | `#7185A5` sur `#FFFFFF` | **3.75 : 1** | >= 3.0:1 (AA UI) |
+| `success` / `successSoft` | `#115A34` / `#E8F6EE` | Statuts confirmés (`SUCCEEDED`, `LIVE`) | `#115A34` sur `#E8F6EE` | **7.43 : 1** | >= 7.0:1 (AAA) |
+| `warning` / `warningSoft` | `#654400` / `#FFF7D6` | États d'attente (`PENDING`, `PENDING_AGREEMENT`) | `#654400` sur `#FFF7D6` | **8.20 : 1** | >= 7.0:1 (AAA) |
+| `danger` / `dangerSoft` | `#8B1E2D` / `#FDF0F2` | Erreurs et états indisponibles (`FAILED`, `UNAVAILABLE`) | `#8B1E2D` sur `#FDF0F2` | **8.15 : 1** | >= 7.0:1 (AAA) |
 
 ---
 
@@ -76,4 +76,4 @@ Définis dans [`packages/ui/src/tokens/spacing.ts`](../../packages/ui/src/tokens
 
 - **Mobile (Android prioritaire / iOS)** : grille mono-colonne fluide (`padding: 16 dp`), barre d'onglets basse de `64 dp`, clavier numérique adapté pour OTP/montants.
 - **Web Usagers (Expo Web)** : rendu unifié via `react-native-web`, conteneurs centrés lisibles (`max-width`), liens canoniques `/auth`, `/services`, `/activity`, `/profile`, boîte de dialogue de confirmation compatible navigateur.
-- **Console d'Administration Web (`apps/admin`)** : grille KPI 4 colonnes -> 2 colonnes (`<= 960 px`) -> 1 colonne (`<= 600 px`), tableaux défilables horizontalement, anneau de focus `:focus-visible` `#FFC52C` (`3 px`).
+- **Console d'Administration Web (`apps/admin`)** : grille KPI 4 colonnes -> 2 colonnes (`<= 960 px`) -> 1 colonne (`<= 600 px`), tableaux défilables horizontalement, anneau de focus `:focus-visible` `#FFC928` (`3 px`).

@@ -38,7 +38,7 @@ export default function RootLayout() {
   const { hydrateAuth } = useAuthStore();
   const { hydrateSettings, reducedMotion, largeFont } = useSettingsStore();
 
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Outfit: Outfit_700Bold,
     DMSans: DMSans_400Regular,
     Outfit_400Regular,
@@ -49,13 +49,19 @@ export default function RootLayout() {
     DMSans_500Medium,
     DMSans_700Bold,
   });
+  const [fontTimeout, setFontTimeout] = React.useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setFontTimeout(true), 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     void hydrateAuth();
     void hydrateSettings();
   }, [hydrateAuth, hydrateSettings]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded && !fontError && !fontTimeout) {
     return (
       <View style={styles.splash}>
         <ActivityIndicator size="large" color={colors.primary} />

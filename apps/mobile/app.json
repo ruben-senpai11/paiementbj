@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "scheme": "paiementbj",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#4169E1",
+    "backgroundColor": "#1746A2",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "bj.paiement.app",
@@ -18,7 +18,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#4169E1"
+        "backgroundColor": "#1746A2"
       },
       "package": "bj.paiement.app",
       "permissions": [
