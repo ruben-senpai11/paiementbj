@@ -6,6 +6,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
+import { isMvpSimulationEnabled } from '../../common/mvp-mode.util';
 
 export interface OtpEntry {
   code: string;
@@ -34,8 +35,9 @@ export class SmsService {
     const isProdEnv = process.env.NODE_ENV === 'production';
     const smsProvider = process.env.SMS_PROVIDER || 'sandbox';
     const hasProdGatewayKey = Boolean(process.env.SMS_API_KEY);
+    const mvpEnabled = isMvpSimulationEnabled();
 
-    if (isProdEnv && (smsProvider === 'sandbox' || !hasProdGatewayKey)) {
+    if (!mvpEnabled && isProdEnv && (smsProvider === 'sandbox' || !hasProdGatewayKey)) {
       throw new ServiceUnavailableException(
         'Passerelle SMS de production non configurée. Impossible d’envoyer le code de vérification.'
       );
@@ -53,9 +55,7 @@ export class SmsService {
     });
 
     if (smsProvider !== 'production' && !hasProdGatewayKey) {
-      this.logger.log(
-        `[SMS-SANDBOX] Code OTP généré pour ${phone} (Valide ${expiresInSeconds}s)`
-      );
+      this.logger.log(`[SMS-MVP] Code OTP généré pour ${phone} (Valide ${expiresInSeconds}s)`);
     } else {
       // Passerelle télécom agréée ARCEP Bénin
       this.logger.log(`[SMS-GATEWAY:${smsProvider}] Envoi de SMS OTP sécurisé vers ${phone}`);

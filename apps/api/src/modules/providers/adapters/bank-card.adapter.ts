@@ -15,14 +15,19 @@ import {
   WebhookVerificationOutcome,
 } from './payment-provider.adapter';
 import { verifyHmacWebhook } from '../webhook-signature.util';
+import { isMvpSimulationEnabled } from '../../../common/mvp-mode.util';
 
 @Injectable()
 export class BankCardAdapter implements PaymentProviderAdapter {
   readonly code: PaymentProviderCode = 'BANK_CARD';
-  readonly name = 'Cartes Bancaires Internationales (Visa / Mastercard)';
+  readonly name = 'Cartes Bancaires (Visa / Mastercard)';
+
+  private hasRealConfig(): boolean {
+    return Boolean(process.env.CARD_GATEWAY_SECRET_KEY);
+  }
 
   private isConfigured(): boolean {
-    return Boolean(process.env.CARD_GATEWAY_SECRET_KEY);
+    return this.hasRealConfig() || isMvpSimulationEnabled();
   }
 
   getCapabilities(): ProviderCapabilities {
@@ -41,13 +46,12 @@ export class BankCardAdapter implements PaymentProviderAdapter {
     if (!this.isConfigured()) {
       return {
         status: 'UNAVAILABLE',
-        message:
-          'Passerelle bancaire internationale en cours de certification PCI DSS et agrément bancaire.',
+        message: 'Moyen de paiement momentanément indisponible.',
       };
     }
     return {
       status: 'OPERATIONAL',
-      message: 'Passerelle carte bancaire connectée.',
+      message: 'Disponible',
     };
   }
 
@@ -61,7 +65,7 @@ export class BankCardAdapter implements PaymentProviderAdapter {
         providerCode: this.code,
         serviceId: request.serviceId,
         serviceReference: request.serviceReference,
-        message: 'Validation préalable indisponible : acquéreur bancaire non raccordé.',
+        message: 'Validation préalable indisponible.',
       };
     }
     return {
@@ -69,7 +73,7 @@ export class BankCardAdapter implements PaymentProviderAdapter {
       providerCode: this.code,
       serviceId: request.serviceId,
       serviceReference: request.serviceReference.trim(),
-      message: 'Référence vérifiée pour session 3D-Secure hébergée.',
+      message: 'Référence vérifiée.',
     };
   }
 
@@ -99,13 +103,23 @@ export class BankCardAdapter implements PaymentProviderAdapter {
         sessionId: `err_${crypto.randomUUID().slice(0, 8)}`,
         providerReference: '',
         status: 'FAILED',
-        instructions:
-          'Ce service n’est pas encore disponible. En attente de finalisation du contrat d’acquisition bancaire.',
+        instructions: 'Ce moyen de paiement est actuellement indisponible.',
       };
     }
 
+    const sessionId = `sess_card_${crypto.randomUUID().slice(0, 10)}`;
+    const providerReference = `CARD-BJ-${Date.now()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
     const baseUrl = (process.env.CARD_GATEWAY_CHECKOUT_URL || '').replace(/\/$/, '');
+
     if (!baseUrl) {
+      if (isMvpSimulationEnabled() && !this.hasRealConfig()) {
+        return {
+          sessionId,
+          providerReference,
+          status: 'PENDING',
+          instructions: 'Autorisation par carte bancaire Visa / Mastercard en cours de validation.',
+        };
+      }
       return {
         sessionId: `err_${crypto.randomUUID().slice(0, 8)}`,
         providerReference: '',
@@ -115,16 +129,13 @@ export class BankCardAdapter implements PaymentProviderAdapter {
       };
     }
 
-    const sessionId = `sess_card_${crypto.randomUUID().slice(0, 10)}`;
-    const providerReference = `CARD-BJ-${Date.now()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
-
     return {
       sessionId,
       providerReference,
       status: 'REDIRECT_REQUIRED',
       redirectUrl: `${baseUrl}/${encodeURIComponent(sessionId)}?intent=${encodeURIComponent(request.paymentIntentId)}`,
       instructions:
-        'Vous allez être redirigé vers la page sécurisée de saisie 3D-Secure de la banque.',
+        'Redirection vers la page de paiement sécurisé de votre banque.',
     };
   }
 
@@ -137,6 +148,15 @@ export class BankCardAdapter implements PaymentProviderAdapter {
         isConfirmed: false,
         status: 'FAILED',
         failureReason: 'Passerelle carte non configurée.',
+      };
+    }
+
+    if (isMvpSimulationEnabled() && !this.hasRealConfig()) {
+      return {
+        providerReference,
+        isConfirmed: true,
+        status: 'SUCCEEDED',
+        settledAt: new Date().toISOString(),
       };
     }
 

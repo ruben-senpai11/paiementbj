@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ServiceItem, ServiceOrganization, ServiceCategoryType, IntegrationStatus } from '@paiementbj/types';
 import { ServiceQueryDto } from '@paiementbj/schemas';
 import { PrismaService } from '../../prisma/prisma.service';
+import { isMvpSimulationEnabled } from '../../common/mvp-mode.util';
 
 @Injectable()
 export class CatalogService {
@@ -291,43 +292,47 @@ export class CatalogService {
         });
 
         if (dbServices.length > 0) {
-          return dbServices.map((s) => ({
-            id: s.id,
-            organizationId: s.organizationId,
-            organization: s.organization
-              ? {
-                  id: s.organization.id,
-                  code: s.organization.code,
-                  name: s.organization.name,
-                  description: s.organization.description,
-                  category: s.organization.category as ServiceCategoryType,
-                  logoAssetKey: s.organization.logoAssetKey,
-                  websiteUrl: s.organization.websiteUrl || undefined,
-                  supportPhone: s.organization.supportPhone || undefined,
-                  isPublicEntity: s.organization.isPublicEntity,
-                }
-              : undefined,
-            code: s.code,
-            title: s.title,
-            description: s.description,
-            category: s.category as ServiceCategoryType,
-            integrationStatus: s.integrationStatus as IntegrationStatus,
-            statusMessage: s.statusMessage || undefined,
-            minAmount: s.minAmount || undefined,
-            maxAmount: s.maxAmount || undefined,
-            currency: s.currency as 'XOF' | 'EUR' | 'USD',
-            requiredIdentityLevel: s.requiredIdentityLevel as any,
-            supportedPaymentMethods: s.supportedPaymentMethods as any,
-            fields: s.fields.map((f) => ({
-              id: f.id,
-              name: f.name,
-              label: f.label,
-              placeholder: f.placeholder,
-              type: f.type as any,
-              required: f.required,
-              helpText: f.helpText || undefined,
-            })),
-          }));
+          const mvp = isMvpSimulationEnabled();
+          return dbServices.map((s) => {
+            const override = this.statusOverrides.get(s.id) ?? this.statusOverrides.get(s.code);
+            return {
+              id: s.id,
+              organizationId: s.organizationId,
+              organization: s.organization
+                ? {
+                    id: s.organization.id,
+                    code: s.organization.code,
+                    name: s.organization.name,
+                    description: s.organization.description,
+                    category: s.organization.category as ServiceCategoryType,
+                    logoAssetKey: s.organization.logoAssetKey,
+                    websiteUrl: s.organization.websiteUrl || undefined,
+                    supportPhone: s.organization.supportPhone || undefined,
+                    isPublicEntity: s.organization.isPublicEntity,
+                  }
+                : undefined,
+              code: s.code,
+              title: s.title,
+              description: s.description,
+              category: s.category as ServiceCategoryType,
+              integrationStatus: override ?? (mvp ? 'LIVE' : (s.integrationStatus as IntegrationStatus)),
+              statusMessage: mvp ? 'Disponible' : s.statusMessage || undefined,
+              minAmount: s.minAmount || undefined,
+              maxAmount: s.maxAmount || undefined,
+              currency: s.currency as 'XOF' | 'EUR' | 'USD',
+              requiredIdentityLevel: s.requiredIdentityLevel as any,
+              supportedPaymentMethods: s.supportedPaymentMethods as any,
+              fields: s.fields.map((f) => ({
+                id: f.id,
+                name: f.name,
+                label: f.label,
+                placeholder: f.placeholder,
+                type: f.type as any,
+                required: f.required,
+                helpText: f.helpText || undefined,
+              })),
+            };
+          });
         }
       }
     } catch {
@@ -335,11 +340,16 @@ export class CatalogService {
       // Fallback gracieux sur le catalogue in-memory
     }
 
-    let items = this.defaultServices.map((s) => ({
-      ...s,
-      integrationStatus: this.statusOverrides.get(s.id) ?? this.statusOverrides.get(s.code) ?? s.integrationStatus,
-      organization: this.defaultOrganizations.find((o) => o.id === s.organizationId),
-    }));
+    const mvp = isMvpSimulationEnabled();
+    let items = this.defaultServices.map((s) => {
+      const override = this.statusOverrides.get(s.id) ?? this.statusOverrides.get(s.code);
+      return {
+        ...s,
+        integrationStatus: override ?? (mvp ? ('LIVE' as IntegrationStatus) : s.integrationStatus),
+        statusMessage: mvp ? 'Disponible' : s.statusMessage,
+        organization: this.defaultOrganizations.find((o) => o.id === s.organizationId),
+      };
+    });
 
     if (query?.category) {
       items = items.filter((s) => s.category === query.category);

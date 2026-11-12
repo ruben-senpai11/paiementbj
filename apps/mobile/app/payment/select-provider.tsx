@@ -6,7 +6,6 @@ import {
   layout,
   AppText,
   ProviderCard,
-  AmountDisplay,
   PrimaryButton,
   StepIndicator,
   LoadingState,
@@ -14,10 +13,10 @@ import {
   StatusBadge,
 } from '@paiementbj/ui';
 import { PaymentProviderCode, PaymentQuote, ProviderSummary } from '@paiementbj/types';
-import { formatFCFA } from '@paiementbj/shared';
 import { api } from '../../src/services/api';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { showNotice } from '../../src/utils/dialog';
+import { PaymentSummaryCard } from '../../src/components/organisms/PaymentSummaryCard';
 
 function createUuidV4(): string {
   if (typeof globalThis.crypto?.randomUUID === 'function') {
@@ -115,24 +114,23 @@ export default function SelectProviderScreen() {
   const providerSubtitle = (code: PaymentProviderCode): string => {
     switch (code) {
       case 'MTN_MOMO':
-        return 'Débit direct via invite USSD MoMo';
+        return 'Débit direct via USSD MoMo';
       case 'MOOV_MONEY':
-        return 'Validation via menu Moov Money (*155#)';
+        return 'Validation via Moov Money (*155#)';
       case 'CELTIIS_CASH':
-        return 'Débit compte monnaie électronique Celtiis';
+        return 'Débit compte Celtiis Cash';
       case 'BANK_CARD':
-        return 'Paiement hébergé sécurisé 3D-Secure (Visa / Mastercard)';
+        return 'Paiement sécurisé 3D-Secure (Visa / Mastercard)';
       case 'TRESOR_PAY':
-        return 'Passerelle officielle de la comptabilité publique';
+        return 'Paiement direct Trésor Public';
     }
   };
 
   const handleConfirmProvider = async () => {
     if (!isSelectedOperational) {
       showNotice(
-        'Prestataire indisponible',
-        currentProvider?.statusMessage ||
-          'Ce moyen de paiement n’est pas encore disponible pour les opérations réelles.'
+        'Moyen indisponible',
+        currentProvider?.statusMessage || 'Ce moyen de paiement est momentanément indisponible.'
       );
       return;
     }
@@ -195,14 +193,14 @@ export default function SelectProviderScreen() {
   };
 
   if (loadingProviders) {
-    return <LoadingState message="Vérification en direct des passerelles de paiement..." />;
+    return <LoadingState message="Chargement des moyens de paiement..." />;
   }
 
   if (loadError) {
     return (
       <View style={styles.center}>
         <ErrorState
-          title="Prestataires injoignables"
+          title="Moyens de paiement injoignables"
           message={loadError}
           onRetry={loadProviders}
           retryLabel="Réessayer"
@@ -215,40 +213,15 @@ export default function SelectProviderScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <StepIndicator steps={steps} currentStep={2} />
 
-      <View style={styles.summaryCard}>
-        <AppText variant="caption" color={colors.textSecondary}>
-          PAIEMENT DE SERVICE
-        </AppText>
-        <AppText variant="h3" color={colors.text} style={styles.summaryTitle}>
-          {serviceTitle}
-        </AppText>
-        <View style={styles.divider} />
-        <View style={styles.row}>
-          <AppText variant="body" color={colors.textSecondary}>
-            Montant principal
-          </AppText>
-          <AppText variant="bodyMedium" color={colors.text}>
-            {formatFCFA(amount)}
-          </AppText>
-        </View>
-        <View style={styles.row}>
-          <AppText variant="body" color={colors.textSecondary}>
-            Frais estimés du prestataire
-          </AppText>
-          <AppText variant="bodyMedium" color={colors.text}>
-            {quote ? formatFCFA(currentFee) : 'Calcul...'}
-          </AppText>
-        </View>
-        <View style={[styles.row, styles.totalRow]}>
-          <AppText variant="h3" color={colors.primaryDeep}>
-            Total net à débiter
-          </AppText>
-          <AmountDisplay amount={totalToDebit} size="medium" />
-        </View>
-      </View>
+      <PaymentSummaryCard
+        serviceTitle={serviceTitle}
+        amount={amount}
+        fee={quote ? currentFee : null}
+        totalToDebit={totalToDebit}
+      />
 
       <AppText variant="bodyMedium" color={colors.primaryDeep} style={styles.sectionLabel}>
-        SÉLECTIONNEZ VOTRE MOYEN DE PAIEMENT
+        MOYEN DE PAIEMENT
       </AppText>
 
       {providers.map((p) => {
@@ -260,7 +233,7 @@ export default function SelectProviderScreen() {
             brandKey={p.brandAssetKey}
             name={p.name}
             subtitle={providerSubtitle(p.code)}
-            feeNotice={p.statusMessage || (available ? 'Frais calculés selon barème officiel' : 'Non activé')}
+            feeNotice={p.statusMessage || (available ? 'Barème opérateur appliqué' : 'Indisponible')}
             isSelected={selectedProvider === p.code}
             isAvailable={available}
             onSelect={() => setSelectedProvider(p.code)}
@@ -273,7 +246,7 @@ export default function SelectProviderScreen() {
           <StatusBadge status="UNAVAILABLE" style={styles.unavailableBadge} />
           <AppText variant="caption" color={colors.danger} style={styles.unavailableText}>
             {currentProvider?.statusMessage ||
-              'Ce prestataire n’est pas encore connecté. Aucun débit simulé n’est autorisé sur Paiement BJ.'}
+              'Ce canal de paiement est momentanément indisponible.'}
           </AppText>
         </View>
       )}

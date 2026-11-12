@@ -6,7 +6,8 @@ export interface DistributionConfig {
   packageId: string;
   playStoreUrl: string | null;
   appStoreUrl: string | null;
-  webAppUrl: string | null;
+  webAppUrl: string;
+  apiBaseUrl: string;
 }
 
 function normalizeUrl(raw: string | undefined): string | null {
@@ -28,11 +29,12 @@ function normalizeUrl(raw: string | undefined): string | null {
 
 export const DISTRIBUTION_CONFIG: DistributionConfig = {
   appName: 'Paiement BJ',
-  tagline: 'Tous vos paiements, simplement.',
-  publisher: 'République du Bénin · Interopérabilité des paiements',
+  tagline: 'Payez vos services publics et factures en un seul geste.',
+  publisher: 'République du Bénin · Paiement BJ',
   version: '1.0.0',
   packageId: 'bj.paiement.app',
   playStoreUrl: normalizeUrl(import.meta.env.VITE_PLAY_STORE_URL),
   appStoreUrl: normalizeUrl(import.meta.env.VITE_APP_STORE_URL),
-  webAppUrl: normalizeUrl(import.meta.env.VITE_WEB_APP_URL),
+  webAppUrl: normalizeUrl(import.meta.env.VITE_WEB_APP_URL) || '/app',
+  apiBaseUrl: normalizeUrl(import.meta.env.VITE_API_BASE_URL) || '/v1',
 };

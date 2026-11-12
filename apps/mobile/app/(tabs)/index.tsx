@@ -1,24 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {
-  ScrollView,
-  View,
-  StyleSheet,
-  Pressable,
-  RefreshControl,
-} from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import {
-  Zap,
-  Landmark,
-  ArrowLeftRight,
-  Globe,
-  ShieldCheck,
-  ArrowRight,
-} from 'lucide-react-native';
+import { Zap, Landmark, ArrowLeftRight, Globe } from 'lucide-react-native';
 import {
   colors,
-  layout,
-  AppText,
   SearchInput,
   SectionHeader,
   ServiceCard,
@@ -32,6 +17,9 @@ import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
 import { getTranslations } from '../../src/i18n/translations';
 import { api } from '../../src/services/api';
+import { CategoryShortcut } from '../../src/components/molecules/CategoryShortcut';
+import { HomeHeroBanner } from '../../src/components/organisms/HomeHeroBanner';
+import { ScreenContainer } from '../../src/components/templates/ScreenContainer';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -57,7 +45,7 @@ export default function HomeScreen() {
         setTransactions([]);
       }
     } catch {
-      // Les erreurs réseau gardent l'état vide honnête sans données fictives
+      // Conserve l'état courant sans erreur bloquante
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -76,58 +64,16 @@ export default function HomeScreen() {
   const popularServices = services.slice(0, 4);
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
-      }
-    >
-      {/* Bandeau d'en-tête institutionnel */}
-      <View style={styles.heroCard}>
-        <View style={styles.badgeRow}>
-          <View style={styles.nationalBadge}>
-            <View style={styles.flagMini}>
-              <View style={{ flex: 1, backgroundColor: '#008751' }} />
-              <View style={{ flex: 1, backgroundColor: '#FCD116' }} />
-              <View style={{ flex: 1, backgroundColor: '#E8112D' }} />
-            </View>
-            <AppText variant="caption" color={colors.textOnPrimary} style={styles.badgeText}>
-              {t.countryBadge}
-            </AppText>
-          </View>
-        </View>
+    <ScreenContainer refreshing={refreshing} onRefresh={onRefresh}>
+      <HomeHeroBanner
+        title={t.appName}
+        subtitle={t.tagline}
+        isAuthenticated={isAuthenticated}
+        connectLabel={t.common.connect}
+        connectedText={`${t.home.connectedPrefix} ${user?.phone || ''} (${t.home.level1Short})`}
+        onPressConnect={() => router.push('/auth')}
+      />
 
-        <AppText variant="h1" color={colors.textOnPrimary} style={styles.heroTitle}>
-          {t.appName}
-        </AppText>
-        <AppText variant="bodyLarge" color="#D4EADB" style={styles.heroSubtitle}>
-          {t.tagline}
-        </AppText>
-
-        {!isAuthenticated ? (
-          <Pressable
-            onPress={() => router.push('/auth')}
-            style={styles.connectPrompt}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel={t.common.connect}
-          >
-            <AppText variant="bodyMedium" color={colors.primaryDeep} style={styles.connectText}>
-              {t.common.connect}
-            </AppText>
-            <ArrowRight size={18} color={colors.primaryDeep} />
-          </Pressable>
-        ) : (
-          <View style={styles.userGreeting}>
-            <AppText variant="caption" color="#FFFFFF">
-              {t.home.connectedPrefix} {user?.phone} ({t.home.level1Short})
-            </AppText>
-          </View>
-        )}
-      </View>
-
-      {/* Barre de recherche rapide */}
       <SearchInput
         value={searchQuery}
         onChangeText={(q) => {
@@ -139,70 +85,33 @@ export default function HomeScreen() {
         placeholder={t.home.searchPlaceholder}
       />
 
-      {/* Raccourcis des catégories prioritaires */}
       <View style={styles.categoriesGrid}>
-        <Pressable
+        <CategoryShortcut
+          label={t.home.catUtilities}
+          backgroundColor={colors.primarySoft}
+          icon={<Zap size={22} color={colors.primaryDeep} strokeWidth={2.2} />}
           onPress={() => router.push('/services?cat=UTILITIES_BILLS' as any)}
-          style={styles.categoryItem}
-          accessible={true}
-          accessibilityRole="button"
-          accessibilityLabel={t.home.catUtilities}
-        >
-          <View style={[styles.categoryIconCircle, { backgroundColor: colors.primarySoft }]}>
-            <Zap size={24} color={colors.primaryDeep} strokeWidth={2.2} />
-          </View>
-          <AppText variant="caption" color={colors.text} style={styles.categoryLabel}>
-            {t.home.catUtilities}
-          </AppText>
-        </Pressable>
-
-        <Pressable
+        />
+        <CategoryShortcut
+          label={t.home.catPublic}
+          backgroundColor={colors.primarySoft}
+          icon={<Landmark size={22} color={colors.primaryDeep} strokeWidth={2.2} />}
           onPress={() => router.push('/services?cat=PUBLIC_ADMINISTRATION' as any)}
-          style={styles.categoryItem}
-          accessible={true}
-          accessibilityRole="button"
-          accessibilityLabel={t.home.catPublic}
-        >
-          <View style={[styles.categoryIconCircle, { backgroundColor: '#EBF4FE' }]}>
-            <Landmark size={24} color={colors.primaryDeep} strokeWidth={2.2} />
-          </View>
-          <AppText variant="caption" color={colors.text} style={styles.categoryLabel}>
-            {t.home.catPublic}
-          </AppText>
-        </Pressable>
-
-        <Pressable
+        />
+        <CategoryShortcut
+          label={t.home.catTransfers}
+          backgroundColor={colors.accentSoft}
+          icon={<ArrowLeftRight size={22} color={colors.accentDark} strokeWidth={2.2} />}
           onPress={() => router.push('/transfers')}
-          style={styles.categoryItem}
-          accessible={true}
-          accessibilityRole="button"
-          accessibilityLabel={t.home.catTransfers}
-        >
-          <View style={[styles.categoryIconCircle, { backgroundColor: colors.accentSoft }]}>
-            <ArrowLeftRight size={24} color={colors.warning} strokeWidth={2.2} />
-          </View>
-          <AppText variant="caption" color={colors.text} style={styles.categoryLabel}>
-            {t.home.catTransfers}
-          </AppText>
-        </Pressable>
-
-        <Pressable
+        />
+        <CategoryShortcut
+          label={t.home.catDiaspora}
+          backgroundColor={colors.primarySoft}
+          icon={<Globe size={22} color={colors.primaryDeep} strokeWidth={2.2} />}
           onPress={() => router.push('/international')}
-          style={styles.categoryItem}
-          accessible={true}
-          accessibilityRole="button"
-          accessibilityLabel={t.home.catDiaspora}
-        >
-          <View style={[styles.categoryIconCircle, { backgroundColor: '#F3E8FF' }]}>
-            <Globe size={24} color={colors.primaryDeep} strokeWidth={2.2} />
-          </View>
-          <AppText variant="caption" color={colors.text} style={styles.categoryLabel}>
-            {t.home.catDiaspora}
-          </AppText>
-        </Pressable>
+        />
       </View>
 
-      {/* Services prioritaires */}
       <SectionHeader
         title={t.home.popularTitle}
         actionLabel={t.home.seeAll}
@@ -210,7 +119,7 @@ export default function HomeScreen() {
       />
 
       {loading ? (
-        <LoadingState message="Chargement des services officiels..." />
+        <LoadingState message="Chargement des services..." />
       ) : (
         popularServices.map((service) => (
           <ServiceCard
@@ -221,7 +130,6 @@ export default function HomeScreen() {
         ))
       )}
 
-      {/* Dernières opérations réelles */}
       <SectionHeader
         title={t.home.recentTitle}
         actionLabel={transactions.length > 0 ? t.home.fullHistory : undefined}
@@ -244,135 +152,15 @@ export default function HomeScreen() {
           onAction={() => router.push('/services')}
         />
       )}
-
-      {/* Notice légale obligatoire : Aucun portefeuille interne */}
-      <View style={styles.disclaimerBox} accessible={true}>
-        <View style={styles.disclaimerHeader}>
-          <ShieldCheck size={16} color={colors.primaryDeep} />
-          <AppText variant="caption" color={colors.primaryDeep} style={styles.disclaimerTitle}>
-            {t.home.regulationTitle}
-          </AppText>
-        </View>
-        <AppText variant="caption" color={colors.textSecondary} style={styles.disclaimerText}>
-          {STANDARD_MESSAGES.noInternalWalletNotice}
-        </AppText>
-      </View>
-    </ScrollView>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: layout.screenPaddingMobile,
-    paddingBottom: 40,
-  },
-  heroCard: {
-    backgroundColor: colors.primaryDeep,
-    borderRadius: layout.borderRadius.lg,
-    padding: 20,
-    marginBottom: 16,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  nationalBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  flagMini: {
-    flexDirection: 'row',
-    width: 14,
-    height: 10,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  heroTitle: {
-    marginBottom: 2,
-    letterSpacing: -0.5,
-  },
-  heroSubtitle: {
-    marginBottom: 16,
-  },
-  connectPrompt: {
-    flexDirection: 'row',
-    gap: 8,
-    backgroundColor: colors.accent,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: layout.borderRadius.sm,
-    alignItems: 'center',
-    minHeight: layout.minTouchTarget,
-    justifyContent: 'center',
-  },
-  connectText: {
-    fontWeight: '700',
-  },
-  userGreeting: {
-    backgroundColor: 'rgba(255, 255, 255, 0.14)',
-    padding: 10,
-    borderRadius: layout.borderRadius.xs,
-  },
   categoriesGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 12,
-  },
-  categoryItem: {
-    alignItems: 'center',
-    width: '23%',
-    minHeight: layout.minTouchTarget,
-  },
-  categoryIconCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  categoryLabel: {
-    fontWeight: '600',
-    textAlign: 'center',
-    fontSize: 12,
-  },
-  disclaimerBox: {
-    backgroundColor: colors.primarySoft,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: 14,
-    borderRadius: layout.borderRadius.md,
-    marginTop: 16,
-  },
-  disclaimerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 4,
-  },
-  disclaimerTitle: {
-    fontWeight: '700',
-    fontSize: 11,
-    letterSpacing: 0.5,
-  },
-  disclaimerText: {
-    lineHeight: 18,
-    fontSize: 12,
+    marginTop: 8,
+    marginBottom: 16,
   },
 });

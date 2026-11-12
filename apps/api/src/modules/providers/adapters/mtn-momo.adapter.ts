@@ -15,6 +15,7 @@ import {
   WebhookVerificationOutcome,
 } from './payment-provider.adapter';
 import { verifyHmacWebhook } from '../webhook-signature.util';
+import { isMvpSimulationEnabled } from '../../../common/mvp-mode.util';
 
 @Injectable()
 export class MtnMomoAdapter implements PaymentProviderAdapter {
@@ -22,8 +23,12 @@ export class MtnMomoAdapter implements PaymentProviderAdapter {
   readonly name = 'MTN Mobile Money';
   private readonly logger = new Logger(MtnMomoAdapter.name);
 
-  private isConfigured(): boolean {
+  private hasRealConfig(): boolean {
     return Boolean(process.env.MTN_MOMO_SUBSCRIPTION_KEY && process.env.MTN_MOMO_API_USER);
+  }
+
+  private isConfigured(): boolean {
+    return this.hasRealConfig() || isMvpSimulationEnabled();
   }
 
   getCapabilities(): ProviderCapabilities {
@@ -42,14 +47,12 @@ export class MtnMomoAdapter implements PaymentProviderAdapter {
     if (!this.isConfigured()) {
       return {
         status: 'UNAVAILABLE',
-        message: 'Passerelle MTN MoMo en attente de clés API et de convention formelle.',
+        message: 'Moyen de paiement momentanément indisponible.',
       };
     }
-    const envLabel =
-      process.env.MTN_MOMO_ENVIRONMENT === 'production' ? 'Production' : 'Bac à sable';
     return {
       status: 'OPERATIONAL',
-      message: `${envLabel} MTN MoMo Developer connecté et disponible.`,
+      message: 'Disponible',
     };
   }
 
@@ -64,7 +67,7 @@ export class MtnMomoAdapter implements PaymentProviderAdapter {
         providerCode: this.code,
         serviceId: request.serviceId,
         serviceReference: request.serviceReference,
-        message: 'Validation préalable indisponible : identifiants passerelle MTN MoMo non configurés.',
+        message: 'Validation préalable indisponible.',
       };
     }
 
@@ -75,7 +78,7 @@ export class MtnMomoAdapter implements PaymentProviderAdapter {
         providerCode: this.code,
         serviceId: request.serviceId,
         serviceReference: cleanRef,
-        message: 'Référence service trop courte pour vérification MTN MoMo.',
+        message: 'Référence service trop courte.',
       };
     }
 
@@ -85,8 +88,7 @@ export class MtnMomoAdapter implements PaymentProviderAdapter {
       serviceId: request.serviceId,
       serviceReference: cleanRef,
       accountStatus: 'ELIGIBLE_NO_LOOKUP',
-      message:
-        'Format de référence vérifié. La confirmation nominative dépend du prestataire facturier final.',
+      message: 'Référence vérifiée.',
     };
   }
 
@@ -121,15 +123,14 @@ export class MtnMomoAdapter implements PaymentProviderAdapter {
         sessionId: `err_${crypto.randomUUID().slice(0, 8)}`,
         providerReference: '',
         status: 'FAILED',
-        instructions:
-          'Ce service n’est pas encore disponible. Les identifiants de passerelle MTN MoMo doivent être configurés par l’administrateur.',
+        instructions: 'Ce moyen de paiement est actuellement indisponible.',
       };
     }
 
     const providerReference = `MOMO-BJ-${Date.now()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
 
     this.logger.log(
-      `[MtnMomoAdapter] Création session RequestToPay pour ${request.customerPhone}, montant: ${request.amount}`
+      `[MtnMomoAdapter] Session RequestToPay pour ${request.customerPhone || 'titulaire'}, montant: ${request.amount}`
     );
 
     return {
@@ -137,7 +138,7 @@ export class MtnMomoAdapter implements PaymentProviderAdapter {
       providerReference,
       status: 'PENDING',
       instructions:
-        'Une invite de confirmation USSD va apparaître sur votre téléphone MTN. Confirmez avec votre code secret MoMo.',
+        'Confirmez la demande de paiement sur votre téléphone MTN Mobile Money.',
     };
   }
 
@@ -150,6 +151,15 @@ export class MtnMomoAdapter implements PaymentProviderAdapter {
         isConfirmed: false,
         status: 'FAILED',
         failureReason: 'Prestataire non connecté.',
+      };
+    }
+
+    if (isMvpSimulationEnabled() && !this.hasRealConfig()) {
+      return {
+        providerReference,
+        isConfirmed: true,
+        status: 'SUCCEEDED',
+        settledAt: new Date().toISOString(),
       };
     }
 

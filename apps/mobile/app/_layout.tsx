@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -20,6 +20,10 @@ import {
 import { colors, AccessibilityPreferencesProvider } from '@paiementbj/ui';
 import { useAuthStore } from '../src/store/useAuthStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
+
+if (Platform.OS === 'web') {
+  require('../global.css');
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {

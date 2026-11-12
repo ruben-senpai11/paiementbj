@@ -93,13 +93,12 @@ export default function AuthIndexScreen() {
               setConsentAccepted(checked);
               if (checked && error) setError(undefined);
             }}
-            label="J’accepte les Conditions Générales d’Utilisation et le traitement de mes données conformément à la Loi béninoise APDP n°2017-20."
-            description="Paiement BJ ne détient aucun solde interne : vos fonds restent auprès de votre opérateur ou banque."
+            label="J’accepte les conditions d’utilisation et la politique de confidentialité."
           />
         </View>
 
         <PrimaryButton
-          label="Recevoir le code de vérification"
+          label="Recevoir le code par SMS"
           onPress={handleRequestOtp}
           disabled={!isValid || !consentAccepted}
           loading={loading}
@@ -138,7 +137,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   consentContainer: {
-    backgroundColor: colors.backgroundMint,
+    backgroundColor: colors.primarySoft,
     padding: 12,
     borderRadius: layout.borderRadius.sm,
     marginBottom: 20,

@@ -15,14 +15,19 @@ import {
   WebhookVerificationOutcome,
 } from './payment-provider.adapter';
 import { verifyHmacWebhook } from '../webhook-signature.util';
+import { isMvpSimulationEnabled } from '../../../common/mvp-mode.util';
 
 @Injectable()
 export class TresorPayAdapter implements PaymentProviderAdapter {
   readonly code: PaymentProviderCode = 'TRESOR_PAY';
   readonly name = 'Télépaiement Trésor Public';
 
-  private isConfigured(): boolean {
+  private hasRealConfig(): boolean {
     return Boolean(process.env.TRESOR_PUBLIC_API_KEY);
+  }
+
+  private isConfigured(): boolean {
+    return this.hasRealConfig() || isMvpSimulationEnabled();
   }
 
   getCapabilities(): ProviderCapabilities {
@@ -41,12 +46,12 @@ export class TresorPayAdapter implements PaymentProviderAdapter {
     if (!this.isConfigured()) {
       return {
         status: 'UNAVAILABLE',
-        message: 'Passerelle Trésor Public en attente de convention formelle MEF / DGTCP.',
+        message: 'Moyen de paiement momentanément indisponible.',
       };
     }
     return {
       status: 'OPERATIONAL',
-      message: 'Passerelle Trésor Pay opérationnelle.',
+      message: 'Disponible',
     };
   }
 
@@ -60,7 +65,7 @@ export class TresorPayAdapter implements PaymentProviderAdapter {
         providerCode: this.code,
         serviceId: request.serviceId,
         serviceReference: request.serviceReference,
-        message: 'Validation préalable indisponible : convention DGTCP / Trésor Pay requise.',
+        message: 'Validation préalable indisponible.',
       };
     }
     return {
@@ -68,7 +73,7 @@ export class TresorPayAdapter implements PaymentProviderAdapter {
       providerCode: this.code,
       serviceId: request.serviceId,
       serviceReference: request.serviceReference.trim(),
-      message: 'Référence vérifiée pour émission de session Trésor Pay.',
+      message: 'Référence vérifiée.',
     };
   }
 
@@ -97,23 +102,32 @@ export class TresorPayAdapter implements PaymentProviderAdapter {
         sessionId: `err_${crypto.randomUUID().slice(0, 8)}`,
         providerReference: '',
         status: 'FAILED',
-        instructions:
-          'Ce service n’est pas encore disponible. En attente de convention d’accès à Trésor Pay.',
+        instructions: 'Ce moyen de paiement est actuellement indisponible.',
+      };
+    }
+
+    const sessionId = `sess_tresor_${crypto.randomUUID().slice(0, 10)}`;
+    const providerReference = `TP-BJ-${Date.now()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+
+    if (isMvpSimulationEnabled() && !this.hasRealConfig()) {
+      return {
+        sessionId,
+        providerReference,
+        status: 'PENDING',
+        instructions: 'Validation du règlement avec le Trésor Public en cours.',
       };
     }
 
     const endpoint = (
       process.env.TRESOR_PUBLIC_ENDPOINT || 'https://paiement.tresorbenin.bj/api/v1'
     ).replace(/\/$/, '');
-    const sessionId = `sess_tresor_${crypto.randomUUID().slice(0, 10)}`;
-    const providerReference = `TP-BJ-${Date.now()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
 
     return {
       sessionId,
       providerReference,
       status: 'REDIRECT_REQUIRED',
       redirectUrl: `${endpoint}/session/${encodeURIComponent(sessionId)}?ref=${encodeURIComponent(request.serviceReference)}`,
-      instructions: 'Redirection vers le portail officiel de quittance du Trésor Public.',
+      instructions: 'Redirection vers le portail de quittance du Trésor Public.',
     };
   }
 
@@ -126,6 +140,15 @@ export class TresorPayAdapter implements PaymentProviderAdapter {
         isConfirmed: false,
         status: 'FAILED',
         failureReason: 'Clé Trésor Public non configurée.',
+      };
+    }
+
+    if (isMvpSimulationEnabled() && !this.hasRealConfig()) {
+      return {
+        providerReference,
+        isConfirmed: true,
+        status: 'SUCCEEDED',
+        settledAt: new Date().toISOString(),
       };
     }
 

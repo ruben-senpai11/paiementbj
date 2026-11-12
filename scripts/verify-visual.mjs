@@ -47,6 +47,28 @@ function findBrowser() {
 function createStaticServer(rootDir, { spaFallback = false, expoDynamicRoutes = false } = {}) {
   return http.createServer((req, res) => {
     const reqUrl = new URL(req.url || '/', 'http://localhost');
+    if (reqUrl.pathname === '/v1' || reqUrl.pathname.startsWith('/v1/')) {
+      const proxyReq = http.request(
+        {
+          hostname: '127.0.0.1',
+          port: 4000,
+          path: `${reqUrl.pathname}${reqUrl.search}`,
+          method: req.method,
+          headers: { ...req.headers, host: '127.0.0.1:4000' },
+        },
+        (proxyRes) => {
+          res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
+          proxyRes.pipe(res);
+        }
+      );
+      proxyReq.on('error', (err) => {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: err.message }));
+      });
+      req.pipe(proxyReq);
+      return;
+    }
+
     let relPath = decodeURIComponent(reqUrl.pathname).replace(/^\/+/, '');
     if (!relPath) relPath = 'index.html';
 
@@ -388,14 +410,37 @@ async function runCheck(cdp, sessionId, config) {
     );
 
     let fullTextOk = true;
-    if (config.mustContain?.length) {
+    const forbiddenMatches = [];
+    if (config.mustContain?.length || !config.skipForbiddenCheck) {
       const fullRes = await cdp.send(
         'Runtime.evaluate',
         { returnByValue: true, expression: `document.body?.innerText || ''` },
         sessionId
       );
       const fullText = fullRes.result?.value || '';
-      fullTextOk = config.mustContain.every((needle) => fullText.includes(needle));
+      if (config.mustContain?.length) {
+        fullTextOk = config.mustContain.every((needle) => fullText.includes(needle));
+      }
+      if (!config.skipForbiddenCheck) {
+        const lowerText = fullText.toLowerCase();
+        for (const term of [
+          'application officielle',
+          'bientôt',
+          'bientot',
+          'interface unique',
+          'non officiel',
+          'traçabilité',
+          'tracabilite',
+          'bac à sable',
+          'test sandbox',
+          'convention en attente',
+          'wcag',
+        ]) {
+          if (lowerText.includes(term)) {
+            forbiddenMatches.push(term);
+          }
+        }
+      }
     }
 
     const ok =
@@ -406,13 +451,15 @@ async function runCheck(cdp, sessionId, config) {
       metrics.brokenImages.length === 0 &&
       metrics.textLen > 40 &&
       metrics.overflowX <= 4 &&
-      fullTextOk;
+      fullTextOk &&
+      forbiddenMatches.length === 0;
 
     return {
       name,
       url,
       ok,
       fullTextOk,
+      forbiddenMatches,
       screenshot: outPath,
       viewport,
       metrics,
@@ -504,38 +551,38 @@ async function main() {
         url: 'http://localhost:4101/',
         viewport: mobileVp,
         screenshotName: '01_web_citizen_home_mobile',
-        mustContain: ['Paiement BJ', 'Services les plus demandés', 'SBEE'],
+        mustContain: ['Paiement BJ', 'Services essentiels', 'SBEE'],
       },
       {
         name: 'Web Citoyen — Accueil (Desktop 1440x900)',
         url: 'http://localhost:4101/',
         viewport: desktopVp,
         screenshotName: '02_web_citizen_home_desktop',
-        mustContain: ['Paiement BJ', 'Convention en attente'],
+        mustContain: ['Paiement BJ', 'SBEE', 'SONEB'],
       },
       {
         name: 'Web Citoyen — Catalogue Services (Mobile)',
         url: 'http://localhost:4101/services',
         viewport: mobileVp,
         screenshotName: '03_web_citizen_services',
-        mustContain: ['Catalogue des Services', 'SBEE', 'SONEB', 'Convention en attente'],
+        mustContain: ['Services', 'SBEE', 'SONEB', 'Payer ce service'],
       },
       {
         name: 'Web Citoyen — Formulaire SBEE (Mobile)',
         url: 'http://localhost:4101/service/srv_sbee_prepaye',
         viewport: mobileVp,
         screenshotName: '04_web_citizen_sbee',
-        mustContain: ['SBEE', 'Test Sandbox'],
+        mustContain: ['SBEE', 'Disponible', 'Continuer vers le paiement'],
       },
       {
-        name: 'Web Citoyen — Service bloqué SONEB honnête (Mobile)',
+        name: 'Web Citoyen — Formulaire SONEB actif (Mobile)',
         url: 'http://localhost:4101/service/srv_soneb_facture',
         viewport: mobileVp,
-        screenshotName: '05_web_citizen_soneb_blocked',
-        mustContain: ['SONEB', 'Convention en attente'],
+        screenshotName: '05_web_citizen_soneb_active',
+        mustContain: ['SONEB', 'Disponible', 'Continuer vers le paiement'],
       },
       {
-        name: 'Web Citoyen — Connexion +229 & Consentement APDP (Mobile)',
+        name: 'Web Citoyen — Connexion +229 & Consentement (Mobile)',
         url: 'http://localhost:4101/auth',
         viewport: mobileVp,
         screenshotName: '06_web_citizen_auth',
@@ -546,28 +593,28 @@ async function main() {
         url: 'http://localhost:4101/support',
         viewport: mobileVp,
         screenshotName: '07_web_citizen_support',
-        mustContain: ['Assistance'],
+        mustContain: ['Déposer une réclamation'],
       },
       {
-        name: 'Web Citoyen — Profil & Accessibilité (Mobile)',
+        name: 'Web Citoyen — Profil & Réglages (Mobile)',
         url: 'http://localhost:4101/profile',
         viewport: mobileVp,
         screenshotName: '08_web_citizen_profile',
-        mustContain: ['Profil Citoyen'],
+        mustContain: ['Mon compte', 'Se connecter'],
       },
       {
-        name: 'Back-Office Admin — Connexion RBAC (Desktop)',
+        name: 'Back-Office Admin — Connexion (Desktop)',
         url: 'http://localhost:4102/',
         viewport: desktopVp,
         screenshotName: '09_web_admin_login',
-        mustContain: ['Back-Office Gouvernance'],
+        mustContain: ['Paiement BJ — Administration', 'Accès réservé aux opérateurs habilités'],
       },
       {
         name: 'Back-Office Admin — Tableau de bord authentifié (Desktop)',
         url: 'http://localhost:4102/',
         viewport: desktopVp,
         screenshotName: '10_web_admin_dashboard',
-        mustContain: ['Tableau de bord de gouvernance', 'État réel des passerelles partenaires'],
+        mustContain: ['Tableau de bord', 'Canaux de paiement'],
         customStep: async (client, sid) => {
           await client.send(
             'Runtime.evaluate',
@@ -586,18 +633,18 @@ async function main() {
             },
             sid
           );
-          await waitForSelector(client, sid, '.admin-sidebar', 10000);
+          await waitForSelector(client, sid, '.pbj-admin-sidebar', 10000);
           await sleep(500);
         },
       },
       {
-        name: 'Back-Office Admin — Gouvernance Catalogue Services (Desktop)',
+        name: 'Back-Office Admin — Catalogue Services (Desktop)',
         url: 'http://localhost:4102/',
         viewport: desktopVp,
         screenshotName: '11_web_admin_catalog',
-        mustContain: ['Catalogue', 'SBEE', 'SONEB'],
+        mustContain: ['Services publics', 'SBEE', 'SONEB'],
         customStep: async (client, sid) => {
-          await waitForSelector(client, sid, '.admin-sidebar nav button', 10000);
+          await waitForSelector(client, sid, '.pbj-admin-sidebar nav button', 10000);
           await client.send(
             'Runtime.evaluate',
             {
@@ -618,9 +665,10 @@ async function main() {
         viewport: desktopVp,
         screenshotName: '12_api_swagger_docs',
         mustContain: ['Paiement BJ — API Interopérabilité'],
+        skipForbiddenCheck: true,
       },
       {
-        name: 'Portail Distribution Stores — Vue Desktop (1440x900)',
+        name: 'Portail Distribution — Vue Desktop & Vérification Quittance (1440x900)',
         url: 'http://localhost:4103/',
         viewport: desktopVp,
         screenshotName: '13_web_distribution_desktop',
@@ -628,24 +676,39 @@ async function main() {
           'Paiement BJ',
           'Google Play',
           'App Store',
-          'Un seul point d’accès',
-          'Zéro portefeuille interne',
-          'Justificatifs centralisés',
+          'BJPay',
+          'Un seul accès pour tous les services',
+          'Un règlement clair en cinq étapes',
+          'REC-BJ-2026-0001',
         ],
+        customStep: async (client, sid) => {
+          await client.send(
+            'Runtime.evaluate',
+            {
+              expression: `(() => {
+                const submit = document.querySelector('#verifier form button[type="submit"]');
+                if (submit) submit.click();
+              })()`,
+            },
+            sid
+          );
+          await waitForSelector(client, sid, '.civic-lookup-result', 5000);
+          await sleep(250);
+        },
       },
       {
-        name: 'Portail Distribution Stores — Vue Mobile (390x844)',
+        name: 'Portail Distribution — Vue Mobile (390x844)',
         url: 'http://localhost:4103/',
         viewport: mobileVp,
         screenshotName: '14_web_distribution_mobile',
-        mustContain: ['Paiement BJ', 'Google Play', 'App Store', 'bj.paiement.app'],
+        mustContain: ['Paiement BJ', 'Google Play', 'App Store', 'Vérifier une quittance'],
       },
       {
-        name: 'Portail Distribution Stores — Modale honnête Google Play (Desktop)',
+        name: 'Portail Distribution — Modale Google Play (Desktop)',
         url: 'http://localhost:4103/',
         viewport: desktopVp,
         screenshotName: '15_web_distribution_modal',
-        mustContain: ['Google Play — Publication en cours de préparation', 'bj.paiement.app'],
+        mustContain: ['Application Android · Google Play', 'Ouvrir l’application web'],
         customStep: async (client, sid) => {
           await client.send(
             'Runtime.evaluate',

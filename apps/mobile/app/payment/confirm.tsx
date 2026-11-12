@@ -92,11 +92,9 @@ export default function PaymentConfirmScreen() {
         </View>
 
         {Boolean(reference) && (
-          <View style={styles.refPill}>
-            <AppText variant="caption" color={colors.primaryDeep} style={styles.refText}>
-              Référence dossier : {reference}
-            </AppText>
-          </View>
+          <AppText variant="caption" color={colors.primaryDeep} style={styles.refText}>
+            Référence dossier : {reference}
+          </AppText>
         )}
 
         {isSuccess ? (
@@ -113,7 +111,7 @@ export default function PaymentConfirmScreen() {
               Votre règlement d’un montant de {formatFCFA(totalAmount)} a été attesté et validé par le prestataire.
             </AppText>
             <PrimaryButton
-              label="Consulter le reçu officiel"
+              label="Consulter le reçu"
               onPress={() => router.replace(`/transaction/${intentId}` as any)}
               style={styles.actionBtn}
             />
@@ -123,7 +121,7 @@ export default function PaymentConfirmScreen() {
             title="Paiement non abouti"
             message={
               instructions ||
-              'L’opération n’a pas pu être validée par le prestataire financier. Aucun montant n’a été prélevé.'
+              'L’opération n’a pas pu être validée. Aucun montant n’a été prélevé.'
             }
             retryLabel="Choisir un autre moyen"
             onRetry={() => router.back()}
@@ -138,16 +136,16 @@ export default function PaymentConfirmScreen() {
             <AppText variant="h2" color={colors.primaryDeep} align="center" style={styles.title}>
               {status === 'REDIRECT_REQUIRED'
                 ? 'Finalisation sur le portail partenaire'
-                : 'Autorisation en cours'}
+                : 'Confirmation en cours'}
             </AppText>
             <AppText variant="body" color={colors.textSecondary} align="center" style={styles.desc}>
               {instructions ||
-                'Veuillez confirmer l’opération sur votre téléphone mobile en saisissant votre code secret opérateur.'}
+                'Confirmez l’opération puis vérifiez le statut ci-dessous.'}
             </AppText>
 
             {Boolean(redirectUrl) && (
               <PrimaryButton
-                label="Ouvrir la page de paiement sécurisée"
+                label="Ouvrir la page de paiement"
                 onPress={openHostedCheckout}
                 style={styles.actionBtn}
               />
@@ -155,16 +153,13 @@ export default function PaymentConfirmScreen() {
 
             <View style={styles.instructionBox}>
               <AppText variant="caption" color={colors.textSecondary} style={styles.instructTitle}>
-                CONSIGNES DE SÉCURITÉ :
+                RAPPEL :
               </AppText>
               <AppText variant="caption" color={colors.textMuted} style={styles.instructItem}>
-                • Ne communiquez jamais votre code secret PIN à un tiers.
+                • Vérifiez le montant affiché ({formatFCFA(totalAmount)}) avant validation.
               </AppText>
               <AppText variant="caption" color={colors.textMuted} style={styles.instructItem}>
-                • Vérifiez que le montant affiché correspond exactement à {formatFCFA(totalAmount)}.
-              </AppText>
-              <AppText variant="caption" color={colors.textMuted} style={styles.instructItem}>
-                • Ne relancez pas un nouveau paiement avant d’avoir vérifié le statut ci-dessous.
+                • Cliquez sur « Vérifier la confirmation » une fois l’opération validée.
               </AppText>
             </View>
 
@@ -209,16 +204,10 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginBottom: 8,
   },
-  refPill: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.backgroundMint,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-    marginBottom: 16,
-  },
   refText: {
+    alignSelf: 'flex-start',
     fontWeight: '700',
+    marginBottom: 16,
   },
   iconCircleSuccess: {
     width: 64,

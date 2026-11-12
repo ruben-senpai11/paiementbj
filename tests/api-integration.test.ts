@@ -14,6 +14,7 @@ const ENV_KEYS_TO_RESTORE = [
   'NODE_ENV',
   'DATABASE_URL',
   'API_PREFIX',
+  'MVP_SIMULATION_MODE',
   'SMS_PROVIDER',
   'JWT_ACCESS_SECRET',
   'MTN_MOMO_SUBSCRIPTION_KEY',
@@ -50,6 +51,7 @@ async function apiFetch(
     body?: unknown;
     rawBody?: string;
     headers?: Record<string, string>;
+    baseUrl?: string;
   } = {}
 ) {
   const headers: Record<string, string> = {
@@ -64,7 +66,7 @@ async function apiFetch(
     headers.authorization = `Bearer ${options.token}`;
   }
 
-  const res = await fetch(`${baseUrl}${path}`, {
+  const res = await fetch(`${options.baseUrl || baseUrl}${path}`, {
     method: options.method || 'GET',
     headers,
     body: payload,
@@ -123,6 +125,7 @@ before(async () => {
   delete process.env.MTN_MOMO_API_USER;
   delete process.env.MTN_MOMO_API_KEY;
   delete process.env.MTN_MOMO_WEBHOOK_SECRET;
+  process.env.MVP_SIMULATION_MODE = 'false';
   delete process.env.MOOV_MONEY_API_KEY;
   delete process.env.MOOV_MONEY_MERCHANT_ID;
   delete process.env.MOOV_MONEY_WEBHOOK_SECRET;
@@ -664,4 +667,136 @@ test('Intégration Serverless Vercel — Adaptateur apps/api/api/index.js sans a
   const rootVercelHandler = require('../api/index.js');
   assert.equal(typeof rootVercelHandler, 'function');
   assert.equal(rootVercelHandler.config?.api?.bodyParser, false);
+});
+
+test('Mode MVP actif par défaut : OTP, 6 services LIVE, 5 canaux opérationnels et règlement bout en bout', async () => {
+  const prevMvp = process.env.MVP_SIMULATION_MODE;
+  const prevNodeEnv = process.env.NODE_ENV;
+  const prevMtnSub = process.env.MTN_MOMO_SUBSCRIPTION_KEY;
+  const prevMtnUser = process.env.MTN_MOMO_API_USER;
+  const prevMtnWebhook = process.env.MTN_MOMO_WEBHOOK_SECRET;
+  delete process.env.MVP_SIMULATION_MODE;
+  delete process.env.MTN_MOMO_SUBSCRIPTION_KEY;
+  delete process.env.MTN_MOMO_API_USER;
+  delete process.env.MTN_MOMO_WEBHOOK_SECRET;
+  process.env.NODE_ENV = 'production';
+
+  const mvpApp = await NestFactory.create(AppModule, { rawBody: true, logger: false });
+  configureApp(mvpApp);
+  await mvpApp.listen(0, '127.0.0.1');
+  const mvpAddress = mvpApp.getHttpServer().address();
+  const mvpBaseUrl = `http://127.0.0.1:${mvpAddress.port}`;
+
+  try {
+    const phone = '+2290197887766';
+    const deviceId = 'dev-mvp-e2e-001';
+    const otpReq = await apiFetch('/v1/auth/otp/request', {
+      method: 'POST',
+      baseUrl: mvpBaseUrl,
+      body: { phone, platform: 'web', deviceId },
+    });
+    assert.equal(otpReq.status, 200);
+    assert.match(otpReq.json.devOtpCode || '', /^\d{6}$/);
+
+    const otpVerify = await apiFetch('/v1/auth/otp/verify', {
+      method: 'POST',
+      baseUrl: mvpBaseUrl,
+      body: {
+        phone,
+        code: otpReq.json.devOtpCode,
+        platform: 'web',
+        deviceId,
+        deviceName: 'Test MVP E2E',
+      },
+    });
+    assert.equal(otpVerify.status, 200);
+    const token = otpVerify.json.accessToken as string;
+    assert.ok(token);
+
+    const servicesRes = await apiFetch('/v1/services', { baseUrl: mvpBaseUrl });
+    assert.equal(servicesRes.status, 200);
+    assert.ok(Array.isArray(servicesRes.json) && servicesRes.json.length >= 6);
+    for (const srv of servicesRes.json) {
+      assert.equal(srv.integrationStatus, 'LIVE');
+    }
+
+    const providersRes = await apiFetch('/v1/payments/providers', {
+      baseUrl: mvpBaseUrl,
+      token,
+    });
+    assert.equal(providersRes.status, 200);
+    assert.equal(providersRes.json.length, 5);
+    for (const p of providersRes.json) {
+      assert.equal(p.availability, 'OPERATIONAL');
+    }
+
+    const intentRes = await apiFetch('/v1/payments/intents', {
+      method: 'POST',
+      baseUrl: mvpBaseUrl,
+      token,
+      body: {
+        serviceId: 'srv_soneb_facture',
+        amount: 3500,
+        serviceReference: 'SNB-998877',
+        customerData: { subscriberNumber: 'SNB-998877' },
+        idempotencyKey: crypto.randomUUID(),
+      },
+    });
+    assert.equal(intentRes.status, 201);
+
+    const attemptRes = await apiFetch('/v1/payments/attempts', {
+      method: 'POST',
+      baseUrl: mvpBaseUrl,
+      token,
+      body: {
+        paymentIntentId: intentRes.json.id,
+        providerCode: 'MTN_MOMO',
+        payerPhone: phone,
+      },
+    });
+    assert.equal(attemptRes.status, 200);
+
+    const statusRes = await apiFetch(`/v1/payments/intents/${intentRes.json.id}/status`, {
+      baseUrl: mvpBaseUrl,
+      token,
+    });
+    assert.equal(statusRes.status, 200);
+    assert.equal(statusRes.json.isConfirmed, true);
+    assert.equal(statusRes.json.status, 'SUCCEEDED');
+
+    const receiptRes = await apiFetch(`/v1/transactions/${intentRes.json.id}/receipt`, {
+      baseUrl: mvpBaseUrl,
+      token,
+    });
+    assert.equal(receiptRes.status, 200);
+    assert.match(receiptRes.json.receiptNumber, /^REC-BJ-/);
+    assert.match(receiptRes.json.digitalSignatureHash, /^[A-F0-9]{64}$/);
+
+    const verifyNew = await apiFetch(
+      `/v1/payments/receipts/verify?reference=${encodeURIComponent(receiptRes.json.receiptNumber)}`,
+      { baseUrl: mvpBaseUrl }
+    );
+    assert.equal(verifyNew.status, 200);
+    assert.equal(verifyNew.json.found, true);
+    assert.equal(verifyNew.json.receipt?.isVerified, true);
+
+    const verifySeed = await apiFetch('/v1/payments/receipts/verify?reference=PBJ-2026-0001', {
+      baseUrl: mvpBaseUrl,
+    });
+    assert.equal(verifySeed.status, 200);
+    assert.equal(verifySeed.json.found, true);
+    assert.equal(verifySeed.json.receipt?.receiptNumber, 'REC-BJ-2026-0001');
+  } finally {
+    await mvpApp.close();
+    if (prevMvp === undefined) delete process.env.MVP_SIMULATION_MODE;
+    else process.env.MVP_SIMULATION_MODE = prevMvp;
+    if (prevNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = prevNodeEnv;
+    if (prevMtnSub === undefined) delete process.env.MTN_MOMO_SUBSCRIPTION_KEY;
+    else process.env.MTN_MOMO_SUBSCRIPTION_KEY = prevMtnSub;
+    if (prevMtnUser === undefined) delete process.env.MTN_MOMO_API_USER;
+    else process.env.MTN_MOMO_API_USER = prevMtnUser;
+    if (prevMtnWebhook === undefined) delete process.env.MTN_MOMO_WEBHOOK_SECRET;
+    else process.env.MTN_MOMO_WEBHOOK_SECRET = prevMtnWebhook;
+  }
 });

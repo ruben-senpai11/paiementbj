@@ -55,7 +55,7 @@ export default function SupportScreen() {
     { key: 'DEBITED_NOT_CREDITED', label: 'Débité mais service non crédité' },
     { key: 'INCORRECT_AMOUNT', label: 'Montant prélevé incorrect' },
     { key: 'REFERENCE_ERROR', label: 'Erreur sur la référence saisie' },
-    { key: 'RECEIPT_NOT_GENERATED', label: 'Reçu officiel non disponible' },
+    { key: 'RECEIPT_NOT_GENERATED', label: 'Reçu non disponible' },
     { key: 'TECHNICAL_DIFFICULTY', label: 'Difficulté technique / bug' },
     { key: 'OTHER', label: 'Autre motif' },
   ];
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 16,
+    borderRadius: 10,
     backgroundColor: colors.backgroundMint,
     marginRight: 8,
     minHeight: layout.minTouchTarget,

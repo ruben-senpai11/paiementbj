@@ -1,0 +1,606 @@
+@import '../../../packages/ui/src/tokens/theme.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+  background-color: var(--pbj-bg);
+  color: var(--pbj-ink);
+  font-family: var(--pbj-font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--pbj-yellow);
+  outline-offset: 2px;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85em;
+  color: var(--pbj-royal-deep);
+}
+
+/* ==========================================================================
+   ATOMES : Boutons, Champs, Badges
+   ========================================================================== */
+
+.pbj-admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: var(--pbj-radius-xs);
+  border: 1.5px solid transparent;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease, transform 120ms ease;
+}
+
+.pbj-admin-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.pbj-admin-btn--royal {
+  background-color: var(--pbj-royal);
+  color: var(--pbj-ink-on-primary);
+}
+
+.pbj-admin-btn--royal:hover:not(:disabled) {
+  background-color: var(--pbj-royal-deep);
+}
+
+.pbj-admin-btn--yellow {
+  background-color: var(--pbj-yellow);
+  color: var(--pbj-yellow-ink);
+}
+
+.pbj-admin-btn--yellow:hover:not(:disabled) {
+  background-color: var(--pbj-yellow-hover);
+}
+
+.pbj-admin-btn--secondary {
+  background-color: var(--pbj-surface);
+  border-color: var(--pbj-border);
+  color: var(--pbj-ink);
+}
+
+.pbj-admin-btn--secondary:hover:not(:disabled) {
+  background-color: var(--pbj-royal-tint);
+  border-color: var(--pbj-royal);
+}
+
+.pbj-admin-btn--sm {
+  min-height: 36px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.pbj-admin-btn--block {
+  width: 100%;
+}
+
+.pbj-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--pbj-radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.pbj-admin-badge--success {
+  background-color: var(--pbj-success-soft);
+  color: var(--pbj-success);
+}
+
+.pbj-admin-badge--warning {
+  background-color: var(--pbj-warning-soft);
+  color: var(--pbj-warning);
+}
+
+.pbj-admin-badge--danger {
+  background-color: var(--pbj-danger-soft);
+  color: var(--pbj-danger);
+}
+
+.pbj-admin-badge--royal {
+  background-color: var(--pbj-royal-soft);
+  color: var(--pbj-royal-deep);
+}
+
+.pbj-admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pbj-admin-field__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pbj-ink);
+}
+
+.pbj-admin-input,
+.pbj-admin-select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: var(--pbj-radius-xs);
+  border: 1.5px solid var(--pbj-border);
+  background-color: var(--pbj-surface);
+  color: var(--pbj-ink);
+  font-size: 14px;
+}
+
+.pbj-admin-input--compact,
+.pbj-admin-select--compact {
+  min-height: 38px;
+  padding: 7px 11px;
+  font-size: 13px;
+}
+
+/* ==========================================================================
+   MOLÉCULES : Alertes, Cartes KPI, Filtres
+   ========================================================================== */
+
+.pbj-admin-alert {
+  padding: 12px 16px;
+  border-radius: var(--pbj-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.pbj-admin-alert--error {
+  background-color: var(--pbj-danger-soft);
+  border-color: var(--pbj-danger);
+  color: var(--pbj-danger);
+}
+
+.pbj-admin-alert--success {
+  background-color: var(--pbj-success-soft);
+  border-color: var(--pbj-success);
+  color: var(--pbj-success);
+}
+
+.pbj-admin-metric {
+  background-color: var(--pbj-surface);
+  border: 1px solid var(--pbj-border-subtle);
+  border-radius: var(--pbj-radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--pbj-shadow-sm);
+}
+
+.pbj-admin-metric__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--pbj-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pbj-admin-metric__value {
+  font-family: var(--pbj-font-display);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--pbj-ink);
+  letter-spacing: -0.02em;
+}
+
+.pbj-admin-metric__value--success {
+  color: var(--pbj-success);
+}
+
+.pbj-admin-metric__value--warning {
+  color: var(--pbj-warning);
+}
+
+.pbj-admin-metric__foot {
+  font-size: 12px;
+  color: var(--pbj-ink-secondary);
+}
+
+.pbj-admin-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pbj-admin-chip {
+  min-height: 36px;
+  padding: 6px 14px;
+  border-radius: var(--pbj-radius-pill);
+  border: 1px solid var(--pbj-border);
+  background-color: var(--pbj-surface);
+  color: var(--pbj-ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pbj-admin-chip--active {
+  background-color: var(--pbj-royal);
+  border-color: var(--pbj-royal);
+  color: var(--pbj-ink-on-primary);
+}
+
+/* ==========================================================================
+   ORGANISMES & TEMPLATES : Login & Dashboard Shell
+   ========================================================================== */
+
+.pbj-admin-login {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--pbj-bg);
+}
+
+.pbj-admin-login__hero {
+  background-color: var(--pbj-royal);
+  color: var(--pbj-ink-on-primary);
+  padding: 40px 24px 64px;
+  text-align: center;
+}
+
+.pbj-admin-login__hero-title {
+  font-family: var(--pbj-font-display);
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-top: 12px;
+}
+
+.pbj-admin-login__hero-accent {
+  display: inline-block;
+  width: 48px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--pbj-yellow);
+  margin: 14px auto 0;
+}
+
+.pbj-admin-login__card-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px 48px;
+  margin-top: -36px;
+}
+
+.pbj-admin-login__card {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--pbj-surface);
+  border: 1px solid var(--pbj-border-subtle);
+  border-radius: var(--pbj-radius-lg);
+  padding: 32px 28px;
+  box-shadow: var(--pbj-shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-self: flex-start;
+}
+
+.pbj-admin-login__subtitle {
+  font-size: 14px;
+  color: var(--pbj-ink-secondary);
+}
+
+.pbj-admin-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pbj-admin-shell {
+  min-height: 100vh;
+  display: flex;
+}
+
+.pbj-admin-sidebar {
+  width: 268px;
+  flex-shrink: 0;
+  background-color: var(--pbj-royal);
+  color: var(--pbj-ink-on-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.pbj-admin-brand {
+  padding: 24px 20px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.pbj-admin-brand__title {
+  font-family: var(--pbj-font-display);
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 12px;
+  color: var(--pbj-ink-on-primary);
+}
+
+.pbj-admin-brand__sub {
+  font-size: 12px;
+  color: var(--pbj-royal-soft);
+  margin-top: 2px;
+}
+
+.pbj-admin-nav {
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.pbj-admin-nav__item {
+  width: 100%;
+  text-align: left;
+  padding: 11px 14px;
+  border-radius: var(--pbj-radius-xs);
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.pbj-admin-nav__item:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.pbj-admin-nav__item--active {
+  background-color: var(--pbj-yellow);
+  color: var(--pbj-yellow-ink);
+  font-weight: 800;
+}
+
+.pbj-admin-nav__item--active:hover {
+  background-color: var(--pbj-yellow-hover);
+}
+
+.pbj-admin-sidebar__footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 12px;
+  color: var(--pbj-royal-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pbj-admin-main {
+  flex: 1;
+  min-width: 0;
+  padding: 28px 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pbj-admin-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.pbj-admin-header__title {
+  font-family: var(--pbj-font-display);
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 800;
+  color: var(--pbj-ink);
+  letter-spacing: -0.02em;
+}
+
+.pbj-admin-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.pbj-admin-operator-tag {
+  padding: 7px 14px;
+  border-radius: var(--pbj-radius-pill);
+  background-color: var(--pbj-royal-soft);
+  color: var(--pbj-royal-deep);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pbj-admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pbj-admin-card {
+  background-color: var(--pbj-surface);
+  border: 1px solid var(--pbj-border-subtle);
+  border-radius: var(--pbj-radius-md);
+  padding: 24px;
+  box-shadow: var(--pbj-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pbj-admin-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.pbj-admin-card__title {
+  font-family: var(--pbj-font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--pbj-ink);
+}
+
+.pbj-admin-card__note {
+  font-size: 14px;
+  color: var(--pbj-ink-secondary);
+}
+
+.pbj-admin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.pbj-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.pbj-admin-table th {
+  padding: 12px 14px;
+  border-bottom: 1.5px solid var(--pbj-border);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--pbj-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.pbj-admin-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--pbj-border-subtle);
+  vertical-align: middle;
+}
+
+.pbj-admin-table__sub {
+  font-size: 12px;
+  color: var(--pbj-ink-muted);
+  margin-top: 2px;
+}
+
+.pbj-admin-inline-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.pbj-admin-inline-control .pbj-admin-select {
+  width: auto;
+  min-width: 190px;
+}
+
+.pbj-admin-ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pbj-admin-ticket {
+  border: 1px solid var(--pbj-border-subtle);
+  border-radius: var(--pbj-radius-sm);
+  background-color: var(--pbj-royal-tint);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pbj-admin-ticket__desc {
+  font-size: 14px;
+  color: var(--pbj-ink-secondary);
+}
+
+.pbj-admin-ticket__thread {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--pbj-radius-xs);
+  background-color: var(--pbj-surface);
+  border: 1px solid var(--pbj-border-subtle);
+  font-size: 13px;
+}
+
+.pbj-admin-ticket__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.pbj-admin-empty {
+  font-size: 14px;
+  color: var(--pbj-ink-muted);
+  padding: 8px 0;
+}
+
+@media (max-width: 1024px) {
+  .pbj-admin-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .pbj-admin-shell {
+    flex-direction: column;
+  }
+
+  .pbj-admin-sidebar {
+    width: 100%;
+  }
+
+  .pbj-admin-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .pbj-admin-nav__item {
+    width: auto;
+  }
+
+  .pbj-admin-main {
+    padding: 20px 16px 36px;
+  }
+}
+
+@media (max-width: 600px) {
+  .pbj-admin-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}

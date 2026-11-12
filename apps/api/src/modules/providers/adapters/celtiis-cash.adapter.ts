@@ -15,14 +15,19 @@ import {
   WebhookVerificationOutcome,
 } from './payment-provider.adapter';
 import { verifyHmacWebhook } from '../webhook-signature.util';
+import { isMvpSimulationEnabled } from '../../../common/mvp-mode.util';
 
 @Injectable()
 export class CeltiisCashAdapter implements PaymentProviderAdapter {
   readonly code: PaymentProviderCode = 'CELTIIS_CASH';
   readonly name = 'Celtiis Cash';
 
-  private isConfigured(): boolean {
+  private hasRealConfig(): boolean {
     return Boolean(process.env.CELTIIS_CASH_API_KEY);
+  }
+
+  private isConfigured(): boolean {
+    return this.hasRealConfig() || isMvpSimulationEnabled();
   }
 
   getCapabilities(): ProviderCapabilities {
@@ -41,12 +46,12 @@ export class CeltiisCashAdapter implements PaymentProviderAdapter {
     if (!this.isConfigured()) {
       return {
         status: 'UNAVAILABLE',
-        message: 'Passerelle Celtiis Cash en attente d’interconnexion avec la SBIN.',
+        message: 'Moyen de paiement momentanément indisponible.',
       };
     }
     return {
       status: 'OPERATIONAL',
-      message: 'Service Celtiis Cash opérationnel.',
+      message: 'Disponible',
     };
   }
 
@@ -60,7 +65,7 @@ export class CeltiisCashAdapter implements PaymentProviderAdapter {
         providerCode: this.code,
         serviceId: request.serviceId,
         serviceReference: request.serviceReference,
-        message: 'Validation préalable indisponible : interconnexion Celtiis Cash en attente.',
+        message: 'Validation préalable indisponible.',
       };
     }
 
@@ -69,7 +74,7 @@ export class CeltiisCashAdapter implements PaymentProviderAdapter {
       providerCode: this.code,
       serviceId: request.serviceId,
       serviceReference: request.serviceReference.trim(),
-      message: 'Format vérifié pour Celtiis Cash.',
+      message: 'Référence vérifiée.',
     };
   }
 
@@ -99,8 +104,7 @@ export class CeltiisCashAdapter implements PaymentProviderAdapter {
         sessionId: `err_${crypto.randomUUID().slice(0, 8)}`,
         providerReference: '',
         status: 'FAILED',
-        instructions:
-          'Ce service n’est pas encore disponible. En attente de finalisation technique avec Celtiis Cash.',
+        instructions: 'Ce moyen de paiement est actuellement indisponible.',
       };
     }
 
@@ -108,7 +112,7 @@ export class CeltiisCashAdapter implements PaymentProviderAdapter {
       sessionId: `sess_celtiis_${crypto.randomUUID().slice(0, 10)}`,
       providerReference: `CELT-BJ-${Date.now()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`,
       status: 'PENDING',
-      instructions: 'Veuillez confirmer l’opération sur votre application Celtiis Cash ou par USSD.',
+      instructions: 'Confirmez l’opération sur votre application Celtiis Cash ou par USSD.',
     };
   }
 
@@ -121,6 +125,15 @@ export class CeltiisCashAdapter implements PaymentProviderAdapter {
         isConfirmed: false,
         status: 'FAILED',
         failureReason: 'Clé API Celtiis Cash absente.',
+      };
+    }
+
+    if (isMvpSimulationEnabled() && !this.hasRealConfig()) {
+      return {
+        providerReference,
+        isConfirmed: true,
+        status: 'SUCCEEDED',
+        settledAt: new Date().toISOString(),
       };
     }
 

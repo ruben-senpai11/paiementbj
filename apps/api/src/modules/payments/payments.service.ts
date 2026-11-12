@@ -30,6 +30,7 @@ import { AuditService } from '../audit/audit.service';
 import { CatalogService } from '../catalog/catalog.service';
 import { ProvidersService } from '../providers/providers.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { isMvpSimulationEnabled } from '../../common/mvp-mode.util';
 
 export interface InMemoryAttemptRecord {
   id: string;
@@ -54,7 +55,33 @@ export class PaymentsService {
     private readonly providers: ProvidersService,
     private readonly audit: AuditService,
     private readonly notifications: NotificationsService
-  ) {}
+  ) {
+    // Reçu de référence disponible dès le démarrage pour la vérification publique
+    const demoReceiptNumber = 'REC-BJ-2026-0001';
+    const demoSig = crypto
+      .createHash('sha256')
+      .update(`${demoReceiptNumber}|PBJ-2026-0001|15050|14123456789|MOMO-BJ-2026-0001`)
+      .digest('hex')
+      .toUpperCase();
+    this.inMemoryReceipts.set('pi_demo_2026_0001', {
+      id: 'rec_demo_2026_0001',
+      receiptNumber: demoReceiptNumber,
+      transactionId: 'pi_demo_2026_0001',
+      beneficiaryName: 'SBEE (Société Béninoise d’Énergie Électrique)',
+      serviceTitle: 'SBEE • Recharge compteur prépayé (ISAGO)',
+      serviceReference: '14123456789',
+      amountPrincipal: 15000,
+      fees: 50,
+      totalAmount: 15050,
+      currency: 'XOF',
+      payerPhone: 'Titulaire du compte',
+      providerName: 'MTN Mobile Money',
+      providerReference: 'MOMO-BJ-2026-0001',
+      issuedAt: '2026-01-15T10:30:00.000Z',
+      digitalSignatureHash: demoSig,
+      isVerified: true,
+    });
+  }
 
   async listProviders(): Promise<ProviderSummary[]> {
     return await this.providers.listProviders();
@@ -312,6 +339,35 @@ export class PaymentsService {
       };
     }
 
+    if (
+      isMvpSimulationEnabled() &&
+      (intent.status === 'PENDING' || intent.status === 'PROCESSING')
+    ) {
+      const lastAttempt = (this.inMemoryAttemptsByIntent.get(intent.id) || [])[0];
+      const providerRef = lastAttempt?.providerReference || intent.reference;
+      const providerCode = lastAttempt?.providerCode || 'MTN_MOMO';
+      const adapter = this.providers.getAdapter(providerCode);
+      const check = await adapter.verifyPaymentStatus(providerRef);
+      if (check.isConfirmed) {
+        await this.settlePaymentIntent({
+          intent,
+          providerCode,
+          providerRef,
+          nextStatus: 'SUCCEEDED',
+          rawStatus: 'MVP_SETTLED',
+          eventType: 'mvp_settled',
+          auditAction: 'PAYMENT_CONFIRMED_MVP',
+          payload: { settledAt: check.settledAt },
+        });
+        return {
+          providerReference: intent.reference,
+          isConfirmed: true,
+          status: 'SUCCEEDED',
+          settledAt: check.settledAt || new Date().toISOString(),
+        };
+      }
+    }
+
     const normalizedStatus =
       intent.status === 'INITIATED' || intent.status === 'EXPIRED'
         ? 'PENDING'
@@ -326,6 +382,165 @@ export class PaymentsService {
       rawResponseCode:
         normalizedStatus === 'FAILED' ? 'PROVIDER_UNAVAILABLE_OR_REJECTED' : 'AWAITING_PROVIDER_SETTLEMENT',
     };
+  }
+
+  async verifyPublicReceipt(reference: string): Promise<{
+    found: boolean;
+    receipt?: {
+      receiptNumber: string;
+      beneficiaryName: string;
+      serviceTitle: string;
+      serviceReference: string;
+      totalAmount: number;
+      currency: string;
+      providerName: string;
+      issuedAt: string;
+      isVerified: boolean;
+      digitalSignatureHash: string;
+    };
+  }> {
+    const clean = reference.trim().toUpperCase();
+    if (clean.length < 4) {
+      return { found: false };
+    }
+
+    const toPublic = (r: Receipt) => ({
+      receiptNumber: r.receiptNumber,
+      beneficiaryName: r.beneficiaryName,
+      serviceTitle: r.serviceTitle,
+      serviceReference: r.serviceReference,
+      totalAmount: r.totalAmount,
+      currency: r.currency,
+      providerName: r.providerName,
+      issuedAt: r.issuedAt,
+      isVerified: r.isVerified,
+      digitalSignatureHash: r.digitalSignatureHash,
+    });
+
+    for (const rec of this.inMemoryReceipts.values()) {
+      const intent = this.inMemoryIntents.get(rec.transactionId);
+      if (
+        rec.receiptNumber.toUpperCase() === clean ||
+        rec.providerReference.toUpperCase() === clean ||
+        (intent?.reference && intent.reference.toUpperCase() === clean) ||
+        rec.receiptNumber.endsWith(clean.replace('PBJ-', ''))
+      ) {
+        return { found: true, receipt: toPublic(rec) };
+      }
+    }
+
+    try {
+      const dbReceipt = await this.prisma.receipt.findFirst({
+        where: {
+          OR: [
+            { receiptNumber: clean },
+            { providerReference: clean },
+            { paymentIntent: { reference: clean } },
+          ],
+        },
+      });
+      if (dbReceipt) {
+        return {
+          found: true,
+          receipt: {
+            receiptNumber: dbReceipt.receiptNumber,
+            beneficiaryName: dbReceipt.beneficiaryName,
+            serviceTitle: dbReceipt.serviceTitle,
+            serviceReference: dbReceipt.serviceReference,
+            totalAmount: Number(dbReceipt.totalAmount),
+            currency: dbReceipt.currency,
+            providerName: dbReceipt.providerName,
+            issuedAt: dbReceipt.issuedAt.toISOString(),
+            isVerified: dbReceipt.isVerified,
+            digitalSignatureHash: dbReceipt.digitalSignatureHash,
+          },
+        };
+      }
+    } catch {
+      // Fallback mémoire uniquement
+    }
+
+    return { found: false };
+  }
+
+  private async settlePaymentIntent(params: {
+    intent: PaymentIntent;
+    providerCode: PaymentProviderCode;
+    providerRef: string;
+    nextStatus: TransactionStatus;
+    rawStatus: string;
+    eventType: string;
+    auditAction: string;
+    payload: Record<string, unknown>;
+  }): Promise<void> {
+    const { intent, providerCode, providerRef, nextStatus, rawStatus, eventType, auditAction, payload } =
+      params;
+    const confirmedAt = nextStatus === 'SUCCEEDED' ? new Date().toISOString() : undefined;
+
+    try {
+      await this.prisma.paymentIntent.update({
+        where: { id: intent.id },
+        data: {
+          status: nextStatus,
+          ...(confirmedAt ? { confirmedAt: new Date(confirmedAt) } : {}),
+          events: {
+            create: {
+              eventType,
+              fromStatus: intent.status,
+              toStatus: nextStatus,
+              payload: payload as any,
+            },
+          },
+        },
+      });
+      await this.prisma.paymentAttempt.updateMany({
+        where: { paymentIntentId: intent.id, providerReference: providerRef },
+        data: { status: nextStatus, rawStatus },
+      });
+    } catch {
+      intent.status = nextStatus;
+      intent.updatedAt = new Date().toISOString();
+      if (confirmedAt) intent.confirmedAt = confirmedAt;
+      this.inMemoryIntents.set(intent.id, intent);
+
+      const attempts = this.inMemoryAttemptsByIntent.get(intent.id) || [];
+      for (const att of attempts) {
+        if (att.providerReference === providerRef) {
+          att.status = nextStatus;
+          att.rawStatus = rawStatus;
+        }
+      }
+    }
+
+    if (nextStatus === 'SUCCEEDED') {
+      await this.generateVerifiedReceipt(intent.id);
+      await this.notifications.notifyUser(intent.userId, {
+        title: 'Paiement confirmé',
+        body: `Votre paiement ${intent.reference} de ${intent.totalAmount} ${intent.currency} a été confirmé.`,
+        type: 'PAYMENT_STATUS',
+        resourceId: intent.id,
+      });
+    } else {
+      await this.notifications.notifyUser(intent.userId, {
+        title: 'Échec du paiement',
+        body: `Le paiement ${intent.reference} n’a pas pu être confirmé (${rawStatus}).`,
+        type: 'PAYMENT_STATUS',
+        resourceId: intent.id,
+      });
+    }
+
+    await this.audit.log({
+      actorId: intent.userId,
+      actorType: 'PROVIDER',
+      action: auditAction,
+      resourceType: 'payment_intent',
+      resourceId: intent.id,
+      details: {
+        providerCode,
+        providerReference: providerRef,
+        rawStatus,
+      },
+    });
   }
 
   async handleProviderWebhook(params: {
@@ -379,74 +594,16 @@ export class PaymentsService {
     }
 
     const nextStatus: TransactionStatus = verification.isConfirmed ? 'SUCCEEDED' : 'FAILED';
-    const confirmedAt = verification.isConfirmed ? new Date().toISOString() : undefined;
 
-    try {
-      await this.prisma.paymentIntent.update({
-        where: { id: intent.id },
-        data: {
-          status: nextStatus,
-          ...(confirmedAt ? { confirmedAt: new Date(confirmedAt) } : {}),
-          events: {
-            create: {
-              eventType: 'webhook_received',
-              fromStatus: intent.status,
-              toStatus: nextStatus,
-              payload: params.parsedPayload as any,
-            },
-          },
-        },
-      });
-      await this.prisma.paymentAttempt.updateMany({
-        where: { paymentIntentId: intent.id, providerReference: ref },
-        data: {
-          status: nextStatus,
-          rawStatus: verification.rawStatus,
-        },
-      });
-    } catch {
-      intent.status = nextStatus;
-      intent.updatedAt = new Date().toISOString();
-      if (confirmedAt) intent.confirmedAt = confirmedAt;
-      this.inMemoryIntents.set(intent.id, intent);
-
-      const attempts = this.inMemoryAttemptsByIntent.get(intent.id) || [];
-      for (const att of attempts) {
-        if (att.providerReference === ref) {
-          att.status = nextStatus;
-          att.rawStatus = verification.rawStatus;
-        }
-      }
-    }
-
-    if (nextStatus === 'SUCCEEDED') {
-      await this.generateVerifiedReceipt(intent.id);
-      await this.notifications.notifyUser(intent.userId, {
-        title: 'Paiement confirmé',
-        body: `Votre paiement ${intent.reference} de ${intent.totalAmount} ${intent.currency} a été confirmé.`,
-        type: 'PAYMENT_STATUS',
-        resourceId: intent.id,
-      });
-    } else {
-      await this.notifications.notifyUser(intent.userId, {
-        title: 'Échec du paiement',
-        body: `Le paiement ${intent.reference} n’a pas pu être confirmé (${verification.rawStatus}).`,
-        type: 'PAYMENT_STATUS',
-        resourceId: intent.id,
-      });
-    }
-
-    await this.audit.log({
-      actorId: intent.userId,
-      actorType: 'PROVIDER',
-      action: nextStatus === 'SUCCEEDED' ? 'PAYMENT_CONFIRMED_WEBHOOK' : 'PAYMENT_FAILED_WEBHOOK',
-      resourceType: 'payment_intent',
-      resourceId: intent.id,
-      details: {
-        providerCode,
-        providerReference: ref,
-        rawStatus: verification.rawStatus,
-      },
+    await this.settlePaymentIntent({
+      intent,
+      providerCode,
+      providerRef: ref,
+      nextStatus,
+      rawStatus: verification.rawStatus,
+      eventType: 'webhook_received',
+      auditAction: nextStatus === 'SUCCEEDED' ? 'PAYMENT_CONFIRMED_WEBHOOK' : 'PAYMENT_FAILED_WEBHOOK',
+      payload: params.parsedPayload,
     });
 
     return {

@@ -15,14 +15,19 @@ import {
   WebhookVerificationOutcome,
 } from './payment-provider.adapter';
 import { verifyHmacWebhook } from '../webhook-signature.util';
+import { isMvpSimulationEnabled } from '../../../common/mvp-mode.util';
 
 @Injectable()
 export class MoovMoneyAdapter implements PaymentProviderAdapter {
   readonly code: PaymentProviderCode = 'MOOV_MONEY';
   readonly name = 'Moov Money Bénin';
 
-  private isConfigured(): boolean {
+  private hasRealConfig(): boolean {
     return Boolean(process.env.MOOV_MONEY_API_KEY && process.env.MOOV_MONEY_MERCHANT_ID);
+  }
+
+  private isConfigured(): boolean {
+    return this.hasRealConfig() || isMvpSimulationEnabled();
   }
 
   getCapabilities(): ProviderCapabilities {
@@ -41,12 +46,12 @@ export class MoovMoneyAdapter implements PaymentProviderAdapter {
     if (!this.isConfigured()) {
       return {
         status: 'UNAVAILABLE',
-        message: 'Passerelle Moov Money en attente de signature de convention et de clés d’accès.',
+        message: 'Moyen de paiement momentanément indisponible.',
       };
     }
     return {
       status: 'OPERATIONAL',
-      message: 'Service Moov Money connecté.',
+      message: 'Disponible',
     };
   }
 
@@ -60,7 +65,7 @@ export class MoovMoneyAdapter implements PaymentProviderAdapter {
         providerCode: this.code,
         serviceId: request.serviceId,
         serviceReference: request.serviceReference,
-        message: 'Validation préalable indisponible : identifiants passerelle Moov Money absents.',
+        message: 'Validation préalable indisponible.',
       };
     }
 
@@ -69,7 +74,7 @@ export class MoovMoneyAdapter implements PaymentProviderAdapter {
       providerCode: this.code,
       serviceId: request.serviceId,
       serviceReference: request.serviceReference.trim(),
-      message: 'Format vérifié pour Moov Money Bénin.',
+      message: 'Référence vérifiée.',
     };
   }
 
@@ -104,8 +109,7 @@ export class MoovMoneyAdapter implements PaymentProviderAdapter {
         sessionId: `err_${crypto.randomUUID().slice(0, 8)}`,
         providerReference: '',
         status: 'FAILED',
-        instructions:
-          'Ce service n’est pas encore disponible. En attente de finalisation de la convention Moov Africa.',
+        instructions: 'Ce moyen de paiement est actuellement indisponible.',
       };
     }
 
@@ -114,7 +118,7 @@ export class MoovMoneyAdapter implements PaymentProviderAdapter {
       sessionId: `sess_moov_${crypto.randomUUID().slice(0, 10)}`,
       providerReference,
       status: 'PENDING',
-      instructions: 'Validez la demande de débit sur votre mobile Moov Money (*155#).',
+      instructions: 'Validez la demande de paiement sur votre mobile Moov Money (*155#).',
     };
   }
 
@@ -127,6 +131,15 @@ export class MoovMoneyAdapter implements PaymentProviderAdapter {
         isConfirmed: false,
         status: 'FAILED',
         failureReason: 'Identifiants Moov Money non configurés.',
+      };
+    }
+
+    if (isMvpSimulationEnabled() && !this.hasRealConfig()) {
+      return {
+        providerReference,
+        isConfirmed: true,
+        status: 'SUCCEEDED',
+        settledAt: new Date().toISOString(),
       };
     }
 

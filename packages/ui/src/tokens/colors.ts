@@ -1,43 +1,43 @@
-/**
- * Tokens de couleur officiels de Paiement BJ.
- * Conçus pour respecter strictement le niveau WCAG 2.2 AAA (ratio >= 7.0:1 pour texte normal).
- */
+// FICHIER GÉNÉRÉ AUTOMATIQUEMENT PAR scripts/sync-theme.mjs
+// Source unique de vérité : packages/ui/src/tokens/theme.css
+// Exécutez `npm run sync:theme` après modification de theme.css.
 
 export const colors = {
-  // Verts institutionnels de référence
-  primary: '#064B32',
-  primaryDeep: '#003F2B',
-  primarySoft: '#E8F1EA',
-  backgroundMint: '#EAF2EC',
-
-  // Textes (Contraste calculé >= 7.0:1)
-  text: '#123B2F',
-  textSecondary: '#384C42', // Version optimisée AAA pour texte secondaire sur fond blanc et clair
-  textMuted: '#43574E',
-  textOnPrimary: '#FFFFFF',
-
-  // Surfaces et fonds
-  background: '#F5F8F4',
-  surface: '#FFFFFF',
-  surfaceSubtle: '#F0F5F1',
-
-  // Accentuation solaire béninoise
-  accent: '#FFC52C',
-  accentSoft: '#FFF6D6',
-  accentDark: '#7A5400', // Pour texte sur fond jaune respectant le contraste
-
-  // Bordures et focus (WCAG 2.4.11)
-  border: '#D8E2DA',
-  borderFocused: '#003F2B',
-  focusRing: '#064B32',
-
-  // États sémantiques (Couleurs AAA calibrées >= 7.0:1 même sur fonds teintés)
-  success: '#0A522E',
-  successSoft: '#E6F4EC',
-  warning: '#6B3B00',
-  warningSoft: '#FFF4D6',
-  danger: '#8A1919',
-  dangerSoft: '#FCE8E8',
+  "primary": "#4169E1",
+  "primaryDeep": "#2446B8",
+  "primaryDark": "#13255E",
+  "primarySoft": "#EEF2FD",
+  "backgroundMint": "#F4F7FE",
+  "text": "#111D3D",
+  "textSecondary": "#39486A",
+  "textMuted": "#516080",
+  "textOnPrimary": "#FFFFFF",
+  "heroSubtext": "#E6ECFC",
+  "background": "#F6F8FC",
+  "surface": "#FFFFFF",
+  "surfaceSubtle": "#EDF1FA",
+  "accent": "#FEBF2E",
+  "accentHover": "#F2AD0E",
+  "accentSoft": "#FFF5D6",
+  "accentDark": "#10214D",
+  "border": "#D9E1F2",
+  "borderSubtle": "#E7ECF7",
+  "borderFocused": "#2446B8",
+  "focusRing": "#4169E1",
+  "disabledBackground": "#E6EAF5",
+  "disabledBorder": "#BAC4DC",
+  "disabledText": "#475577",
+  "success": "#0E6A42",
+  "successSoft": "#E8F6EE",
+  "warning": "#7A4B00",
+  "warningSoft": "#FFF4D6",
+  "danger": "#9E1C1C",
+  "dangerSoft": "#FCEAEA",
+  "beninGreen": "#008751",
+  "beninYellow": "#FCD116",
+  "beninRed": "#E8112D",
+  "neutralStroke": "#E7ECF7",
+  "skeleton": "#DDE4F3"
 } as const;
 
 export type ColorToken = keyof typeof colors;

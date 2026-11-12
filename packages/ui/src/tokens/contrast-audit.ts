@@ -24,22 +24,28 @@ export function runColorPaletteAudit(): AuditRecord[] {
       usage: 'Contenu des cartes, fiches de services et formulaires',
     },
     {
-      name: 'Texte principal sur fond mint',
+      name: 'Texte principal sur fond bleu roi léger',
       fg: colors.text,
       bg: colors.backgroundMint,
       usage: 'Bandeaux institutionnels et fiches secondaires',
     },
     {
-      name: 'Texte blanc sur bouton vert primaire',
+      name: 'Texte blanc sur bleu roi primaire',
       fg: colors.textOnPrimary,
       bg: colors.primary,
-      usage: 'Bouton d’action principal (CTA)',
+      usage: 'Section Hero et actions principales',
     },
     {
-      name: 'Texte blanc sur vert profond',
+      name: 'Texte blanc sur bleu roi profond',
       fg: colors.textOnPrimary,
       bg: colors.primaryDeep,
-      usage: 'Hero header, bannières d’authentification forte',
+      usage: 'Liens d’action et boutons principaux',
+    },
+    {
+      name: 'Texte sombre sur bouton jaune d’accentuation',
+      fg: colors.accentDark,
+      bg: colors.accent,
+      usage: 'Bouton CTA principal sur Hero Bleu Roi',
     },
     {
       name: 'Texte secondaire optimisé sur surface blanche',

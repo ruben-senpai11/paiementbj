@@ -1,0 +1,8 @@
+@import '../../packages/ui/src/tokens/theme.css';
+
+html,
+body {
+  background-color: var(--pbj-bg);
+  color: var(--pbj-ink);
+  font-family: var(--pbj-font-body);
+}

@@ -2,7 +2,7 @@ import { ServiceCategoryType } from '@paiementbj/types';
 
 export const APP_INFO = {
   name: 'Paiement BJ',
-  signature: 'Tous vos paiements, simplement.',
+  signature: 'Vos services publics et factures, en un seul endroit.',
   version: '1.0.0',
   country: 'Bénin',
   currency: 'XOF',
@@ -14,38 +14,40 @@ export const CATEGORY_METADATA: Record<
   { label: string; description: string; iconName: string }
 > = {
   [ServiceCategoryType.UTILITIES_BILLS]: {
-    label: 'Factures & Abonnements',
-    description: 'Électricité (SBEE), eau (SONEB), télévision (CANAL+), Internet et recharges.',
+    label: 'Factures & Eau',
+    description: 'Électricité (SBEE), eau (SONEB), télévision et accès Internet.',
     iconName: 'zap',
   },
   [ServiceCategoryType.PUBLIC_ADMINISTRATION]: {
-    label: 'Démarches Publiques',
-    description: 'Trésor public, impôts, timbres fiscaux, actes d’état civil ANIP et redevances.',
+    label: 'Trésor & ANIP',
+    description: 'Timbres fiscaux, impôts, actes d’état civil et redevances publiques.',
     iconName: 'landmark',
   },
   [ServiceCategoryType.GOODS_SERVICES]: {
     label: 'Biens & Services',
-    description: 'Commerçants partenaires, entreprises certifiées et prestations de proximité.',
+    description: 'Organismes partenaires et prestations de proximité.',
     iconName: 'shopping-bag',
   },
   [ServiceCategoryType.TRANSFERS]: {
-    label: 'Transferts Interopérables',
-    description: 'Passerelle entre opérateurs et banques via l’infrastructure nationale PI-SPI.',
+    label: 'Transferts',
+    description: 'Transferts interopérables entre opérateurs et banques.',
     iconName: 'arrow-left-right',
   },
   [ServiceCategoryType.INTERNATIONAL]: {
-    label: 'International & Diaspora',
-    description: 'Paiements par cartes bancaires internationales pour la diaspora et les visiteurs.',
+    label: 'Diaspora',
+    description: 'Règlements par carte bancaire depuis l’étranger.',
     iconName: 'globe',
   },
 };
 
 export const STANDARD_MESSAGES = {
-  emptyTransactions: 'Aucune transaction pour le moment. Vos paiements effectués depuis Paiement BJ apparaîtront ici.',
-  emptyServices: 'Aucun service disponible pour cette sélection actuellement.',
-  serviceUnavailable: 'Ce service n’est pas encore disponible.',
-  providerMaintenance: 'Le service rencontre actuellement une difficulté. Veuillez réessayer ultérieurement.',
+  emptyTransactions: 'Aucune opération enregistrée pour le moment.',
+  emptyServices: 'Aucun service disponible pour cette sélection.',
+  serviceUnavailable: 'Service momentanément indisponible.',
+  providerMaintenance: 'Service momentanément indisponible. Réessayez ultérieurement.',
   networkError: 'Vérifiez votre connexion Internet et réessayez.',
-  noInternalWalletNotice: 'Paiement BJ n’est pas un portefeuille électronique et ne conserve aucun fonds. Vos transactions sont traitées directement par votre banque ou votre opérateur Mobile Money.',
-  bceaoNotice: 'Conformément aux directives de la BCEAO et à l’Instruction n°001-01-2024, Paiement BJ opère exclusivement en intermédiation technique sans conservation ni émission de monnaie électronique.',
+  noInternalWalletNotice:
+    'Règlement direct auprès de votre opérateur ou de votre banque.',
+  bceaoNotice:
+    'Intermédiation directe entre usagers, organismes publics et partenaires agréés.',
 } as const;

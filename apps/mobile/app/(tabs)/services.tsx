@@ -46,10 +46,10 @@ export default function ServicesScreen() {
   }, []);
 
   const categories = [
-    { key: 'ALL', label: 'Tous les services' },
-    { key: ServiceCategoryType.UTILITIES_BILLS, label: '⚡ Factures & Abonnements' },
-    { key: ServiceCategoryType.PUBLIC_ADMINISTRATION, label: '🏛 Démarches Publiques' },
-    { key: ServiceCategoryType.GOODS_SERVICES, label: '🛍 Biens & Services' },
+    { key: 'ALL', label: 'Tous' },
+    { key: ServiceCategoryType.UTILITIES_BILLS, label: 'Factures' },
+    { key: ServiceCategoryType.PUBLIC_ADMINISTRATION, label: 'Services publics' },
+    { key: ServiceCategoryType.GOODS_SERVICES, label: 'Commerces' },
   ];
 
   const filteredServices = services.filter((s) => {
@@ -68,10 +68,10 @@ export default function ServicesScreen() {
         <SearchInput
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Rechercher par nom, organisme..."
+          placeholder="Rechercher un service..."
         />
 
-        {/* Filtres de catégories accessibles */}
+        {/* Filtres par catégorie */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -116,7 +116,7 @@ export default function ServicesScreen() {
         }
       >
         {loading ? (
-          <LoadingState message="Chargement du catalogue des services..." />
+          <LoadingState message="Chargement des services..." />
         ) : filteredServices.length > 0 ? (
           filteredServices.map((service) => (
             <ServiceCard
@@ -129,8 +129,8 @@ export default function ServicesScreen() {
           <EmptyState
             iconSymbol="🔍"
             title="Aucun service trouvé"
-            description="Aucun service ne correspond à vos critères de recherche. Vérifiez l’orthographe ou réinitialisez les filtres."
-            actionLabel="Réinitialiser les filtres"
+            description="Aucun service ne correspond à votre recherche."
+            actionLabel="Tout afficher"
             onAction={() => {
               setSelectedCategory('ALL');
               setSearchQuery('');
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.screenPaddingMobile,
     paddingTop: 8,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.borderSubtle,
   },
   categoryScroll: {
     marginVertical: 10,
@@ -161,10 +161,10 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   categoryChip: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: colors.backgroundMint,
+    borderRadius: layout.borderRadius.full,
+    backgroundColor: colors.primarySoft,
     marginRight: 8,
     minHeight: layout.minTouchTarget,
     justifyContent: 'center',

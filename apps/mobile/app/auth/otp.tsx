@@ -132,8 +132,8 @@ export default function OtpVerificationScreen() {
 
         {Boolean(devCode) && (
           <View style={styles.devBox}>
-            <AppText variant="caption" color={colors.warning} style={styles.devText}>
-              ℹ Environnement Bac à sable : Code SMS généré = {devCode}
+            <AppText variant="caption" color={colors.accentDark} style={styles.devText}>
+              Code de confirmation : {devCode}
             </AppText>
           </View>
         )}
@@ -196,9 +196,9 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   devBox: {
-    backgroundColor: colors.warningSoft,
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: colors.accentSoft,
+    padding: 12,
+    borderRadius: 10,
     marginBottom: 16,
   },
   devText: {

@@ -17,7 +17,6 @@ import {
   AppText,
   PrimaryButton,
   SecondaryButton,
-  StatusBadge,
 } from '@paiementbj/ui';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useSettingsStore } from '../../src/store/useSettingsStore';
@@ -122,12 +121,12 @@ export default function ProfileScreen() {
               {[user?.profile?.firstName, user?.profile?.lastName].filter(Boolean).join(' ')}
             </AppText>
           )}
-          <View style={styles.badgeWrap}>
-            <StatusBadge status="LIVE" customLabel={t.profile.levelBadge} />
-          </View>
+          <AppText variant="caption" color={colors.textSecondary} style={styles.levelText}>
+            {t.profile.levelBadge}
+          </AppText>
         </View>
         {unreadNotifications > 0 && (
-          <View style={styles.notifBadge} accessibilityLabel={`${unreadNotifications} alertes non lues`}>
+          <View style={styles.notifWrap} accessibilityLabel={`${unreadNotifications} alertes non lues`}>
             <Bell size={16} color={colors.primaryDeep} />
             <AppText variant="caption" color={colors.primaryDeep} style={styles.notifText}>
               {unreadNotifications}
@@ -306,21 +305,17 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   fullName: {
-    marginBottom: 6,
+    marginBottom: 4,
   },
-  badgeWrap: {
-    alignSelf: 'flex-start',
+  levelText: {
+    fontWeight: '600',
   },
-  notifBadge: {
+  notifWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: colors.accentSoft,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
   },
   notifText: {
     fontWeight: '700',

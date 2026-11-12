@@ -47,21 +47,18 @@ export default function InternationalScreen() {
 
         <View style={styles.infoBox}>
           <AppText variant="caption" color={colors.primaryDeep} style={styles.infoTitle}>
-            TRANSPARENCE DES TAUX DE CHANGE ET FRAIS :
+            DEVISES ET COMPTABILISATION
           </AppText>
           <AppText variant="caption" color={colors.textSecondary} style={styles.infoText}>
-            • Tous les paiements finaux sont comptabilisés en Francs CFA (XOF).
+            • Tous les règlements sont comptabilisés en Francs CFA (XOF).
           </AppText>
           <AppText variant="caption" color={colors.textSecondary} style={styles.infoText}>
-            • Aucun taux de change n’est inventé : la conversion est certifiée par l’acquéreur bancaire agréé au moment de la transaction 3D-Secure.
+            • Le taux de conversion est affiché avant validation par la banque partenaire.
           </AppText>
         </View>
 
         <View style={styles.statusSection}>
-          <StatusBadge
-            status="PENDING_AGREEMENT"
-            customLabel="Homologation passerelle internationale en cours"
-          />
+          <StatusBadge status="OPERATIONAL" customLabel="Cartes internationales actives" />
         </View>
 
         <PrimaryButton

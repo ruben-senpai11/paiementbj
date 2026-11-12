@@ -51,7 +51,7 @@ export default function ActivityScreen() {
         <EmptyState
           iconSymbol="🔒"
           title="Connexion requise"
-          description="Connectez-vous avec votre numéro de téléphone pour retrouver l’historique vérifié de vos opérations et vos reçus officiels."
+          description="Connectez-vous avec votre numéro de téléphone pour retrouver votre historique et vos reçus."
           actionLabel="Se connecter"
           onAction={() => router.push('/auth')}
         />

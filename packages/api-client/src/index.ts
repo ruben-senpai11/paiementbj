@@ -210,6 +210,23 @@ export class PaiementBjApiClient {
 
     getStatus: (paymentIntentId: string) =>
       this.request<ProviderStatusCheckResponse>(`/payments/intents/${paymentIntentId}/status`),
+
+    verifyReceipt: (reference: string) =>
+      this.request<{
+        found: boolean;
+        receipt?: {
+          receiptNumber: string;
+          beneficiaryName: string;
+          serviceTitle: string;
+          serviceReference: string;
+          totalAmount: number;
+          currency: string;
+          providerName: string;
+          issuedAt: string;
+          isVerified: boolean;
+          digitalSignatureHash: string;
+        };
+      }>(`/payments/receipts/verify?reference=${encodeURIComponent(reference)}`),
   };
 
   // --- TRANSACTIONS & RECEIPTS ---

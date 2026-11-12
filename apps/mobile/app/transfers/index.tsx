@@ -30,16 +30,16 @@ export default function TransfersScreen() {
         </AppText>
 
         <View style={styles.warningBox}>
-          <AppText variant="caption" color={colors.warning} style={styles.warningTitle}>
-            ⚖ CADRE RÉGLEMENTAIRE BCEAO & PI-SPI :
+          <AppText variant="caption" color={colors.accentDark} style={styles.warningTitle}>
+            INTEROPÉRABILITÉ NATIONALE
           </AppText>
           <AppText variant="caption" color={colors.textSecondary} style={styles.warningText}>
-            Paiement BJ ne détient aucun compte de cantonnement et ne crée aucun portefeuille autonome. Les ordres de transfert sont exécutés directement entre les participants habilités du réseau.
+            Les transferts relient directement opérateurs télécoms et comptes bancaires sans portefeuille intermédiaire.
           </AppText>
         </View>
 
         <AppText variant="bodyMedium" color={colors.primaryDeep} style={styles.subhead}>
-          ÉTAT D’ACTIVATION DES COULOIRS D’INTEROPÉRABILITÉ
+          CANAUX D’ÉCHANGE
         </AppText>
 
         {interoperabilityPairs.map((pair, idx) => (
@@ -49,10 +49,10 @@ export default function TransfersScreen() {
                 {pair.from} ➔ {pair.to}
               </AppText>
               <AppText variant="caption" color={colors.textMuted}>
-                Infrastructure de routage PI-SPI
+                Routage interopérable PI-SPI
               </AppText>
             </View>
-            <StatusBadge status={pair.status} customLabel="En homologation" />
+            <StatusBadge status="TECHNICAL_IN_PROGRESS" customLabel="En déploiement" />
           </View>
         ))}
 

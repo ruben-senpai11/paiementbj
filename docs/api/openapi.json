@@ -260,6 +260,21 @@
         ]
       }
     },
+    "/v1/payments/receipts/verify": {
+      "get": {
+        "operationId": "PaymentsController_verifyPublicReceipt",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Résultat de vérification."
+          }
+        },
+        "summary": "Vérification publique d’un reçu ou d’une quittance par numéro ou référence",
+        "tags": [
+          "Orchestration des paiements"
+        ]
+      }
+    },
     "/v1/payments/providers": {
       "get": {
         "operationId": "PaymentsController_listProviders",

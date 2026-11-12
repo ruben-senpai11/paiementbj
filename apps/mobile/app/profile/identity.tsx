@@ -74,10 +74,10 @@ export default function ProfileIdentityScreen() {
           <BrandLogo brandKey="anip" size={44} />
           <View style={styles.anipHeaderText}>
             <AppText variant="h3" color={colors.primaryDeep}>
-              Niveaux d’identification officielle
+              Niveaux d’identification
             </AppText>
             <AppText variant="caption" color={colors.textSecondary}>
-              Architecture progressive conforme ANIP / BCEAO
+              Architecture progressive d’accès aux services
             </AppText>
           </View>
         </View>
@@ -93,7 +93,7 @@ export default function ProfileIdentityScreen() {
               currentLevel === IdentityLevel.LEVEL_2_IDENTITY_VERIFIED ||
               currentLevel === IdentityLevel.LEVEL_3_ENHANCED
                 ? 'Actif. Autorise l’accès aux paiements du quotidien et reçus centralisés.'
-                : 'En attente de validation OTP.'}
+                : 'En attente de validation.'}
             </AppText>
           </View>
         </View>
@@ -105,10 +105,10 @@ export default function ProfileIdentityScreen() {
               <AppText variant="bodySmall" color={colors.text} style={styles.bold}>
                 Niveau 2 : Identité certifiée ANIP / NPI
               </AppText>
-              <StatusBadge status="PENDING_AGREEMENT" customLabel="En attente ANIP" />
+              <StatusBadge status="TECHNICAL_IN_PROGRESS" customLabel="Connexion ANIP" />
             </View>
             <AppText variant="caption" color={colors.textSecondary}>
-              La vérification du Numéro Personnel d’Identification (NPI) sera activée exclusivement après homologation officielle de l’interconnexion ANIP. Aucun faux NPI n’est accepté.
+              Vérification d’identité nationale pour les démarches administratives avancées.
             </AppText>
           </View>
         </View>
@@ -150,10 +150,12 @@ export default function ProfileIdentityScreen() {
                 <AppText variant="bodySmall" color={colors.text} style={styles.bold}>
                   {PURPOSE_LABELS[record.purpose] || record.purpose}
                 </AppText>
-                <StatusBadge
-                  status={record.revokedAt ? 'FAILED' : 'SUCCEEDED'}
-                  customLabel={record.revokedAt ? 'Révoqué' : `v${record.version}`}
-                />
+                <AppText
+                  variant="caption"
+                  color={record.revokedAt ? colors.danger : colors.textSecondary}
+                >
+                  {record.revokedAt ? 'Révoqué' : `Version ${record.version}`}
+                </AppText>
               </View>
               <AppText variant="caption" color={colors.textMuted}>
                 Accepté le {new Date(record.acceptedAt).toLocaleString('fr-BJ')}

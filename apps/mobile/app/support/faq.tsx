@@ -6,23 +6,23 @@ import { colors, layout, AppText, PrimaryButton } from '@paiementbj/ui';
 const FAQ_ITEMS = [
   {
     q: 'Paiement BJ garde-t-il mon argent dans un portefeuille ?',
-    a: 'Non. Paiement BJ ne crée aucune monnaie électronique et ne détient aucun fonds utilisateur. Vos fonds restent directement auprès de votre opérateur Mobile Money ou de votre banque, conformément à l’Instruction BCEAO n°001-01-2024.',
+    a: 'Non. Vos règlements passent directement par votre opérateur Mobile Money ou votre carte bancaire, sans solde intermédiaire.',
   },
   {
-    q: 'Pourquoi certains services affichent « En attente de convention » ?',
-    a: 'Par transparence absolue, seuls les services et opérateurs disposant de passerelles raccordées et de conventions valides peuvent déclencher un paiement. Nous ne simulons jamais un paiement indisponible.',
+    q: 'Quels services puis-je régler sur Paiement BJ ?',
+    a: 'Vous pouvez régler vos factures (SBEE, SONEB, CANAL+, Celtiis Fibre) ainsi que vos démarches Trésor Public et ANIP au même endroit.',
   },
   {
-    q: 'Comment obtenir mon reçu officiel avec signature SHA-256 ?',
-    a: 'Dès que l’opérateur confirme le règlement (via webhook signé ou vérification d’état), votre reçu officiel est émis automatiquement dans l’onglet Activité avec une empreinte SHA-256 vérifiable et partageable.',
+    q: 'Comment retrouver mon justificatif après un paiement ?',
+    a: 'Dès la confirmation du règlement, votre reçu horodaté avec empreinte SHA-256 est disponible dans l’onglet Activité.',
   },
   {
-    q: 'Que faire si j’ai été débité mais que mon reçu indique En cours ?',
-    a: 'Ne relancez pas un second paiement immédiatement. Ouvrez l’écran de la transaction puis sélectionnez « Signaler une difficulté sur ce paiement » pour transmettre votre référence dossier PBJ au support.',
+    q: 'Que faire si mon paiement reste en attente ?',
+    a: 'Consultez la transaction concernée et utilisez « Vérifier la confirmation » ou déposez une réclamation auprès de l’assistance.',
   },
   {
-    q: 'Comment exercer mes droits APDP (Loi n°2017-20) ?',
-    a: 'Dans Profil > Préférences & confidentialité, vous pouvez consulter vos consentements horodatés ou soumettre une demande formelle de suppression de compte (les pièces comptables légales restant archivées selon la durée réglementaire).',
+    q: 'Comment gérer mes données personnelles ?',
+    a: 'Dans Profil > Langue et accessibilité, vous pouvez ajuster vos préférences ou demander la suppression de votre compte.',
   },
 ];
 
@@ -35,7 +35,7 @@ export default function SupportFaqScreen() {
         Foire Aux Questions
       </AppText>
       <AppText variant="body" color={colors.textSecondary} style={styles.subtitle}>
-        Informations officielles sur le fonctionnement, la sécurité et la conformité de Paiement BJ.
+        Réponses aux questions courantes sur l’utilisation de Paiement BJ.
       </AppText>
 
       {FAQ_ITEMS.map((item, idx) => (

@@ -157,7 +157,7 @@ export default function ProfileSettingsScreen() {
               color={language === 'fr' ? colors.textOnPrimary : colors.text}
               style={styles.bold}
             >
-              Français (Officiel)
+              Français
             </AppText>
           </Pressable>
           <Pressable
@@ -177,12 +177,12 @@ export default function ProfileSettingsScreen() {
         </View>
       </View>
 
-      {/* Accessibilité WCAG 2.2 AAA */}
+      {/* Confort de lecture */}
       <View style={styles.card}>
         <View style={styles.sectionHead}>
           <Eye size={20} color={colors.primaryDeep} />
           <AppText variant="bodyMedium" color={colors.primaryDeep} style={styles.sectionTitle}>
-            ACCESSIBILITÉ NUMÉRIQUE (WCAG 2.2 AAA)
+            CONFORT DE LECTURE
           </AppText>
         </View>
 

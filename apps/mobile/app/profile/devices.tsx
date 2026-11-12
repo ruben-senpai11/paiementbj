@@ -7,7 +7,6 @@ import {
   layout,
   AppText,
   SecondaryButton,
-  StatusBadge,
   LoadingState,
   EmptyState,
   ErrorState,
@@ -143,7 +142,11 @@ export default function ProfileDevicesScreen() {
                     </AppText>
                   </View>
                 </View>
-                {isCurrent && <StatusBadge status="LIVE" customLabel="Cet appareil" />}
+                {isCurrent && (
+                  <AppText variant="caption" color={colors.primaryDeep} style={styles.deviceName}>
+                    Cet appareil
+                  </AppText>
+                )}
               </View>
 
               <View style={styles.detailsRow}>

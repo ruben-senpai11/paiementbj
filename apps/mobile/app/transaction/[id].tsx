@@ -51,8 +51,8 @@ export default function TransactionDetailScreen() {
     if (!receipt) return;
     try {
       await Share.share({
-        title: `Reçu officiel Paiement BJ ${receipt.receiptNumber}`,
-        message: `Reçu officiel de télépaiement Paiement BJ\nNuméro : ${receipt.receiptNumber}\nBénéficiaire : ${receipt.beneficiaryName}\nMontant : ${formatFCFA(receipt.totalAmount)}\nRéf : ${receipt.serviceReference}\nEmpreinte SHA-256 : ${receipt.digitalSignatureHash}`,
+        title: `Reçu Paiement BJ ${receipt.receiptNumber}`,
+        message: `Justificatif de télépaiement Paiement BJ\nNuméro : ${receipt.receiptNumber}\nBénéficiaire : ${receipt.beneficiaryName}\nMontant : ${formatFCFA(receipt.totalAmount)}\nRéf : ${receipt.serviceReference}\nEmpreinte SHA-256 : ${receipt.digitalSignatureHash}`,
       });
     } catch {
       // Annulation partage
@@ -70,7 +70,7 @@ export default function TransactionDetailScreen() {
   };
 
   if (loading) {
-    return <LoadingState message="Récupération du reçu officiel..." />;
+    return <LoadingState message="Chargement du reçu..." />;
   }
 
   if (error && !transaction && !receipt) {

@@ -49,23 +49,28 @@ test('Devise FCFA : Formatage UEMOA avec séparateurs de milliers', () => {
   assert.equal(formatCurrency(150.5, 'EUR'), '150,50 €');
 });
 
-test('Contraste WCAG 2.2 AAA : Paires critiques UI >= 7.0:1', () => {
-  const pairs: Array<[string, string]> = [
-    ['#FFFFFF', '#064B32'],
-    ['#FFFFFF', '#003F2B'],
-    ['#123B2F', '#FFFFFF'],
-    ['#384C42', '#FFFFFF'],
-    ['#43574E', '#F5F8F4'],
-    ['#0A522E', '#E6F4EC'],
-    ['#8A1919', '#FCE8E8'],
+test('Contraste thème Bleu Roi & Jaune : Paires critiques UI', () => {
+  const aaaPairs: Array<[string, string]> = [
+    ['#FFFFFF', '#2446B8'],
+    ['#FFFFFF', '#13255E'],
+    ['#10214D', '#FEBF2E'],
+    ['#111D3D', '#FFFFFF'],
+    ['#39486A', '#FFFFFF'],
+    ['#39486A', '#F6F8FC'],
+    ['#0A522E', '#E8F6EE'],
+    ['#8A1919', '#FCEAEA'],
     ['#6B3B00', '#FFF4D6'],
   ];
 
-  for (const [fg, bg] of pairs) {
+  for (const [fg, bg] of aaaPairs) {
     const res = calculateContrastRatio(fg, bg);
-    assert.ok(res.ratio >= 7.0, `Contraste ${fg} sur ${bg} = ${res.ratio.toFixed(2)}`);
+    assert.ok(res.ratio >= 7.0, `Contraste AAA ${fg} sur ${bg} = ${res.ratio.toFixed(2)}`);
     assert.equal(res.passesWcagAAANormal, true);
   }
+
+  const heroContrast = calculateContrastRatio('#FFFFFF', '#4169E1');
+  assert.ok(heroContrast.ratio >= 4.5, `Contraste Hero ${heroContrast.ratio.toFixed(2)}`);
+  assert.equal(heroContrast.passesWcagAANormal, true);
 });
 
 test('Schémas Zod (@paiementbj/schemas) : Validation OTP, Paiement, Support et Suppression APDP', () => {

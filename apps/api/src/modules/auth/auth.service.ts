@@ -59,11 +59,13 @@ export class AuthService {
       details: { phone: phoneRes.normalized, operator: phoneRes.operator },
     });
 
+    const isMvpMode = process.env.MVP_SIMULATION_MODE !== 'false';
     const exposeDevOtp =
-      process.env.NODE_ENV !== 'production' && process.env.SMS_PROVIDER !== 'production';
+      (isMvpMode && !process.env.SMS_API_KEY) ||
+      (process.env.NODE_ENV !== 'production' && process.env.SMS_PROVIDER !== 'production');
 
     return {
-      message: 'Code de vérification envoyé par SMS avec succès.',
+      message: 'Code de vérification envoyé.',
       expiresInSeconds,
       ...(exposeDevOtp ? { devOtpCode: code } : {}),
     };

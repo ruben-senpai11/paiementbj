@@ -5,6 +5,7 @@ import {
   Param,
   Body,
   Headers,
+  Query,
   UseGuards,
   Req,
   HttpCode,
@@ -24,6 +25,13 @@ import { PaymentsService } from './payments.service';
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
+
+  @Get('receipts/verify')
+  @ApiOperation({ summary: 'Vérification publique d’un reçu ou d’une quittance par numéro ou référence' })
+  @ApiResponse({ status: 200, description: 'Résultat de vérification.' })
+  async verifyPublicReceipt(@Query('reference') reference = '') {
+    return await this.paymentsService.verifyPublicReceipt(reference);
+  }
 
   @Get('providers')
   @UseGuards(JwtAuthGuard)

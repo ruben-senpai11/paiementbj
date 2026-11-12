@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Outfit:wght@500;600;700;800&display=swap');
+
+/* ==========================================================================
+   PAIEMENT BJ — MASTER DESIGN SYSTEM (SINGLE SOURCE OF TRUTH)
+   Modifiez les tokens ci-dessous : `npm run sync:theme` propage la charte
+   vers @paiementbj/ui, Web Landing, Application Mobile / Web et Admin RBAC.
+   ========================================================================== */
+
+:root {
+  /* Identité Hero & Charte Principale : Bleu Roi + Jaune Or */
+  --pbj-royal: #4169E1;
+  --pbj-royal-deep: #2446B8;
+  --pbj-royal-dark: #13255E;
+  --pbj-royal-soft: #EEF2FD;
+  --pbj-royal-tint: #F4F7FE;
+
+  --pbj-yellow: #FEBF2E;
+  --pbj-yellow-hover: #F2AD0E;
+  --pbj-yellow-soft: #FFF5D6;
+  --pbj-yellow-ink: #10214D;
+
+  /* Surfaces & Fonds */
+  --pbj-bg: #F6F8FC;
+  --pbj-surface: #FFFFFF;
+  --pbj-surface-subtle: #EDF1FA;
+
+  /* Typographie & Contrastes */
+  --pbj-ink: #111D3D;
+  --pbj-ink-secondary: #39486A;
+  --pbj-ink-muted: #516080;
+  --pbj-ink-on-primary: #FFFFFF;
+
+  /* Bordures & Focus */
+  --pbj-border: #D9E1F2;
+  --pbj-border-subtle: #E7ECF7;
+  --pbj-border-focused: #2446B8;
+  --pbj-focus-ring: #4169E1;
+  --pbj-disabled-bg: #E6EAF5;
+  --pbj-disabled-border: #BAC4DC;
+  --pbj-disabled-ink: #475577;
+
+  /* Statuts sémantiques */
+  --pbj-success: #0E6A42;
+  --pbj-success-soft: #E8F6EE;
+  --pbj-warning: #7A4B00;
+  --pbj-warning-soft: #FFF4D6;
+  --pbj-danger: #9E1C1C;
+  --pbj-danger-soft: #FCEAEA;
+
+  /* Emblème national (filet bas de page & reçu) */
+  --pbj-flag-green: #008751;
+  --pbj-flag-yellow: #FCD116;
+  --pbj-flag-red: #E8112D;
+
+  /* Typographie */
+  --pbj-font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+  --pbj-font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+  /* Rythme, Rayons & Élévations */
+  --pbj-radius-xs: 8px;
+  --pbj-radius-sm: 12px;
+  --pbj-radius-md: 16px;
+  --pbj-radius-lg: 24px;
+  --pbj-radius-hero-media: 72px 14px;
+  --pbj-radius-pill: 999px;
+
+  --pbj-shadow-sm: 0 4px 16px rgba(17, 29, 61, 0.05);
+  --pbj-shadow-md: 0 12px 32px rgba(17, 29, 61, 0.08);
+  --pbj-shadow-lg: 0 22px 54px rgba(17, 29, 61, 0.14);
+
+  --pbj-container-max: 1180px;
+}
+
+/* Base utilitaire partagée pour les plateformes Web */
+.pbj-flag-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: 6px;
+  width: 100%;
+}
+
+.pbj-flag-bar > span:nth-child(1) {
+  background-color: var(--pbj-flag-green);
+}
+
+.pbj-flag-bar > span:nth-child(2) {
+  background-color: var(--pbj-flag-yellow);
+}
+
+.pbj-flag-bar > span:nth-child(3) {
+  background-color: var(--pbj-flag-red);
+}
