@@ -47,16 +47,14 @@ body {
 
 /* ---------------- HEADER ---------------- */
 .civic-header {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 40;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
   border-bottom: 1px solid var(--pbj-border);
 }
 
 .civic-header-inner {
-  min-height: 82px;
+  min-height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -158,18 +156,18 @@ body {
   overflow-x: clip;
   background: var(--pbj-royal);
   color: var(--pbj-ink-on-primary);
-  padding: 56px 0 88px;
+  padding: 18px 0 42px;
 }
 
 .civic-hero-grid {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 48px;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 36px;
   align-items: center;
 }
 
 .civic-eyebrow {
-  margin: 0 0 16px;
+  margin: 0 0 10px;
   font-size: 0.84rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -180,9 +178,9 @@ body {
 .civic-hero-title {
   margin: 0;
   font-family: var(--pbj-font-display);
-  font-size: clamp(2.15rem, 4.3vw, 3.55rem);
+  font-size: clamp(2rem, 3.8vw, 3.25rem);
   font-weight: 800;
-  line-height: 1.05;
+  line-height: 1.06;
   letter-spacing: -0.04em;
   color: var(--pbj-ink-on-primary);
 }
@@ -196,26 +194,26 @@ body {
 }
 
 .civic-hero-lead {
-  margin: 24px 0 34px;
-  max-width: 54ch;
-  font-size: 1.1rem;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.93);
+  margin: 14px 0 22px;
+  max-width: 52ch;
+  font-size: 1.04rem;
+  line-height: 1.58;
+  color: rgba(255, 255, 255, 0.94);
 }
 
 .store-download-group {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 14px;
+  gap: 12px;
 }
 
 .civic-cta-yellow {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 0 26px;
+  min-height: 50px;
+  padding: 0 24px;
   border-radius: var(--pbj-radius-xs);
   background: var(--pbj-yellow);
   color: var(--pbj-yellow-ink);
@@ -280,7 +278,7 @@ body {
 
 /* ---------------- TEASER STRIP ---------------- */
 .civic-teaser-wrap {
-  margin-top: -32px;
+  margin-top: -20px;
   position: relative;
   z-index: 10;
 }

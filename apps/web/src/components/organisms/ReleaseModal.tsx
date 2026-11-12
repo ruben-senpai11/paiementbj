@@ -37,10 +37,10 @@ export const ReleaseModal: React.FC<ReleaseModalProps> = ({ target, onClose }) =
   if (!target) return null;
 
   const isAndroid = target === 'playstore';
-  const title = isAndroid ? 'Tester sur Android' : 'Tester sur iPhone';
+  const title = isAndroid ? 'Installer sur Android' : 'Installer sur iPhone';
   const description = isAndroid
     ? 'Installez Paiement BJ directement sur votre téléphone Android depuis Chrome (« Installer l’application » dans le menu du navigateur) pour l’utiliser comme une application locale.'
-    : 'Téléchargez le profil d’installation Paiement BJ pour iPhone, puis validez-le dans Réglages > Profil téléchargé pour ajouter l’application sur votre écran d’accueil.';
+    : 'Le profil d’installation Paiement BJ pour iPhone (.mobileconfig) se télécharge sur votre appareil. Ouvrez ensuite Réglages > Profil téléchargé pour finaliser l’installation sur votre écran d’accueil.';
 
   const handleAndroidInstall = async () => {
     if (deferredPrompt) {

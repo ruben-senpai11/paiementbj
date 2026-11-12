@@ -2,32 +2,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  perspective: 1400px;
+  perspective: 1600px;
   perspective-origin: 50% 50%;
-  padding: 50px 30px;
+  padding: 6px 16px 14px;
   overflow: visible;
 }
 
 .phone {
   position: relative;
-  width: 310px;
+  width: clamp(216px, 27vh, 256px);
   flex-shrink: 0;
   transform-style: preserve-3d;
-  transform: rotateY(-18deg) rotateZ(-5deg) rotateX(2deg);
-  transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  filter: drop-shadow(25px 35px 25px rgba(0, 0, 0, 0.25));
+  transform: rotateY(-8deg) rotateZ(-2deg) rotateX(1deg);
+  transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  filter: drop-shadow(16px 24px 20px rgba(0, 0, 0, 0.24));
 }
 
 /* Animation au survol */
 .stage:hover .phone {
-  transform: rotateY(-10deg) rotateZ(-2deg) rotateX(0deg) translateY(-8px);
+  transform: rotateY(-3deg) rotateZ(-0.5deg) rotateX(0deg) translateY(-5px);
 }
 
 .frame {
   position: relative;
   z-index: 2;
-  padding: 9px;
-  border-radius: 52px;
+  padding: 8px;
+  border-radius: 44px;
   background: linear-gradient(
     115deg,
     #777b80 0%,
@@ -39,7 +39,7 @@
   );
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.85),
-    inset 0 0 5px rgba(0, 0, 0, 0.7),
+    inset 0 0 5px rgba(0, 0, 0, 0.68),
     0 0 0 1px #64676a;
 }
 
@@ -47,12 +47,12 @@
 .frame::before {
   content: '';
   position: absolute;
-  top: 20px;
-  bottom: 20px;
-  right: -6px;
-  width: 9px;
+  top: 28px;
+  bottom: 28px;
+  right: -4px;
+  width: 7px;
   z-index: -1;
-  border-radius: 0 30px 30px 0;
+  border-radius: 0 24px 24px 0;
   background: linear-gradient(to right, #55585c, #aeb0b3, #65686c);
   transform: translateZ(-2px);
 }
@@ -62,7 +62,7 @@
   width: 100%;
   aspect-ratio: 402 / 874;
   overflow: hidden;
-  border-radius: 43px;
+  border-radius: 36px;
   background: #ffffff;
   isolation: isolate;
 }
@@ -74,34 +74,36 @@
   height: 100%;
   display: block;
   object-fit: cover;
-  object-position: center;
+  object-position: center top;
+  backface-visibility: hidden;
+  image-rendering: -webkit-optimize-contrast;
 }
 
 /* Dynamic Island */
 .dynamicIsland {
   position: absolute;
   z-index: 5;
-  top: 12px;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 95px;
-  height: 27px;
-  border-radius: 20px;
+  width: 78px;
+  height: 22px;
+  border-radius: 16px;
   background: #050505;
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.08);
 }
 
 .dynamicIsland span {
   position: absolute;
-  right: 11px;
-  top: 9px;
-  width: 8px;
-  height: 8px;
+  right: 9px;
+  top: 7px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #252a35, #050505);
 }
 
-/* Reflet subtil sur le verre */
+/* Reflet léger sur le verre (préserve la lisibilité de l'écran) */
 .screenReflection {
   position: absolute;
   inset: 0;
@@ -109,10 +111,10 @@
   pointer-events: none;
   background: linear-gradient(
     115deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    transparent 25%,
-    transparent 75%,
-    rgba(255, 255, 255, 0.05) 100%
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 24%,
+    transparent 76%,
+    rgba(255, 255, 255, 0.02) 100%
   );
 }
 
@@ -120,9 +122,9 @@
 .actionButton {
   position: absolute;
   left: -4px;
-  top: 105px;
-  width: 5px;
-  height: 28px;
+  top: 90px;
+  width: 4px;
+  height: 24px;
   border-radius: 4px 0 0 4px;
   background: linear-gradient(to right, #555555, #c7c8ca);
 }
@@ -132,47 +134,47 @@
 .volumeDown {
   position: absolute;
   left: -4px;
-  width: 5px;
-  height: 45px;
+  width: 4px;
+  height: 38px;
   border-radius: 4px 0 0 4px;
   background: linear-gradient(to right, #555555, #c7c8ca);
 }
 
 .volumeUp {
-  top: 155px;
+  top: 132px;
 }
 
 .volumeDown {
-  top: 210px;
+  top: 178px;
 }
 
 /* Bouton Power */
 .powerButton {
   position: absolute;
-  right: -5px;
-  top: 175px;
-  width: 6px;
-  height: 85px;
+  right: -4px;
+  top: 148px;
+  width: 5px;
+  height: 72px;
   border-radius: 0 5px 5px 0;
   background: linear-gradient(to right, #777777, #d4d5d6);
 }
 
 @media (max-width: 640px) {
   .stage {
-    padding: 35px 20px;
+    padding: 16px 16px 24px;
   }
 
   .phone {
-    width: min(260px, 75vw);
+    width: min(240px, 72vw);
   }
 
   .frame {
-    border-radius: 44px;
-    padding: 8px;
+    border-radius: 40px;
+    padding: 7px;
   }
 
   .screen {
-    border-radius: 36px;
+    border-radius: 33px;
   }
 }
 

@@ -674,8 +674,8 @@ async function main() {
         screenshotName: '13_web_distribution_desktop',
         mustContain: [
           'Paiement BJ',
-          'Tester sur Android',
-          'Tester sur iPhone',
+          'Installer sur Android',
+          'Installer sur iPhone',
           'BJPay',
           'Un seul accès pour tous les services',
           'Un règlement clair en cinq étapes',
@@ -701,22 +701,22 @@ async function main() {
         url: 'http://localhost:4103/',
         viewport: mobileVp,
         screenshotName: '14_web_distribution_mobile',
-        mustContain: ['Paiement BJ', 'Tester sur Android', 'Tester sur iPhone', 'Vérifier une quittance'],
+        mustContain: ['Paiement BJ', 'Installer sur Android', 'Installer sur iPhone', 'Vérifier une quittance'],
       },
       {
-        name: 'Portail Distribution — Modale Tester sur iPhone (Desktop)',
+        name: 'Portail Distribution — Modale Installer sur Android (Desktop)',
         url: 'http://localhost:4103/',
         viewport: desktopVp,
         screenshotName: '15_web_distribution_modal',
-        mustContain: ['Tester sur iPhone', 'Télécharger pour iPhone'],
+        mustContain: ['Installer sur Android', 'Installez Paiement BJ directement sur votre téléphone Android'],
         customStep: async (client, sid) => {
           await client.send(
             'Runtime.evaluate',
             {
               expression: `(() => {
                 const btns = Array.from(document.querySelectorAll('button'));
-                const iosBtn = btns.find((b) => b.textContent.includes('Tester sur iPhone'));
-                if (iosBtn) iosBtn.click();
+                const androidBtn = btns.find((b) => b.textContent.includes('Installer sur Android'));
+                if (androidBtn) androidBtn.click();
               })()`,
             },
             sid

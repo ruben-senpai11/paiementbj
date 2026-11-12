@@ -1,4 +1,5 @@
 import React from 'react';
+import { DISTRIBUTION_CONFIG } from '../../config';
 import { GooglePlayPrismIcon, AppleStoreIcon } from '../atoms/StoreIcons';
 
 export interface StoreDownloadGroupProps {
@@ -33,7 +34,7 @@ export const StoreDownloadGroup: React.FC<StoreDownloadGroupProps> = ({
             className="store-btn-clean"
           >
             <GooglePlayPrismIcon size={18} />
-            <span>Tester sur Android</span>
+            <span>Installer sur Android</span>
           </a>
         ) : (
           <button
@@ -42,7 +43,7 @@ export const StoreDownloadGroup: React.FC<StoreDownloadGroupProps> = ({
             onClick={() => onPendingStore('playstore')}
           >
             <GooglePlayPrismIcon size={18} />
-            <span>Tester sur Android</span>
+            <span>Installer sur Android</span>
           </button>
         )}
 
@@ -53,17 +54,18 @@ export const StoreDownloadGroup: React.FC<StoreDownloadGroupProps> = ({
             className="store-btn-clean"
           >
             <AppleStoreIcon size={18} />
-            <span>Tester sur iPhone</span>
+            <span>Installer sur iPhone</span>
           </a>
         ) : (
-          <button
-            type="button"
+          <a
+            href={DISTRIBUTION_CONFIG.iosProfileUrl}
+            download="PaiementBJ-iPhone.mobileconfig"
             className="store-btn-clean"
             onClick={() => onPendingStore('appstore')}
           >
             <AppleStoreIcon size={18} />
-            <span>Tester sur iPhone</span>
-          </button>
+            <span>Installer sur iPhone</span>
+          </a>
         )}
       </div>
     </div>
