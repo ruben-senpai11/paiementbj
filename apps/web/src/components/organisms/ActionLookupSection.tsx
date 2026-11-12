@@ -66,8 +66,8 @@ export const ActionLookupSection: React.FC<ActionLookupSectionProps> = ({ onPend
             Disponible sur mobile et navigateur
           </h2>
           <p className="civic-split-desc">
-            Téléchargez l’application sur Google Play ou App Store, ou effectuez vos paiements dès
-            maintenant depuis la version web.
+            Installez l’application sur votre téléphone Android ou iPhone, ou effectuez vos
+            paiements dès maintenant depuis la version web.
           </p>
 
           <StoreDownloadGroup

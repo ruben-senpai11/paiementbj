@@ -719,6 +719,9 @@ body {
 }
 
 .modal-btn-dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 52px;
   padding: 0 20px;
   border-radius: var(--pbj-radius-xs);
@@ -726,6 +729,7 @@ body {
   background: var(--pbj-surface);
   color: var(--pbj-ink);
   font-weight: 700;
+  text-decoration: none;
   cursor: pointer;
 }
 

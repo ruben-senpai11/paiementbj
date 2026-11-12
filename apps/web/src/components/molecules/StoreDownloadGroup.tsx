@@ -29,12 +29,11 @@ export const StoreDownloadGroup: React.FC<StoreDownloadGroupProps> = ({
         {playStoreUrl ? (
           <a
             href={playStoreUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+            download
             className="store-btn-clean"
           >
             <GooglePlayPrismIcon size={18} />
-            <span>Google Play</span>
+            <span>Tester sur Android</span>
           </a>
         ) : (
           <button
@@ -43,19 +42,18 @@ export const StoreDownloadGroup: React.FC<StoreDownloadGroupProps> = ({
             onClick={() => onPendingStore('playstore')}
           >
             <GooglePlayPrismIcon size={18} />
-            <span>Google Play</span>
+            <span>Tester sur Android</span>
           </button>
         )}
 
         {appStoreUrl ? (
           <a
             href={appStoreUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+            download
             className="store-btn-clean"
           >
             <AppleStoreIcon size={18} />
-            <span>App Store</span>
+            <span>Tester sur iPhone</span>
           </a>
         ) : (
           <button
@@ -64,7 +62,7 @@ export const StoreDownloadGroup: React.FC<StoreDownloadGroupProps> = ({
             onClick={() => onPendingStore('appstore')}
           >
             <AppleStoreIcon size={18} />
-            <span>App Store</span>
+            <span>Tester sur iPhone</span>
           </button>
         )}
       </div>

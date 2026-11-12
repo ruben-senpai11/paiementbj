@@ -1,0 +1,19 @@
+{
+  "name": "Paiement BJ",
+  "short_name": "Paiement BJ",
+  "description": "Services publics, factures et démarches au Bénin en un seul geste.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1746A2",
+  "background_color": "#1746A2",
+  "icons": [
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

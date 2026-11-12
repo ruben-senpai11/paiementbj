@@ -674,8 +674,8 @@ async function main() {
         screenshotName: '13_web_distribution_desktop',
         mustContain: [
           'Paiement BJ',
-          'Google Play',
-          'App Store',
+          'Tester sur Android',
+          'Tester sur iPhone',
           'BJPay',
           'Un seul accès pour tous les services',
           'Un règlement clair en cinq étapes',
@@ -701,22 +701,22 @@ async function main() {
         url: 'http://localhost:4103/',
         viewport: mobileVp,
         screenshotName: '14_web_distribution_mobile',
-        mustContain: ['Paiement BJ', 'Google Play', 'App Store', 'Vérifier une quittance'],
+        mustContain: ['Paiement BJ', 'Tester sur Android', 'Tester sur iPhone', 'Vérifier une quittance'],
       },
       {
-        name: 'Portail Distribution — Modale Google Play (Desktop)',
+        name: 'Portail Distribution — Modale Tester sur iPhone (Desktop)',
         url: 'http://localhost:4103/',
         viewport: desktopVp,
         screenshotName: '15_web_distribution_modal',
-        mustContain: ['Application Android · Google Play', 'Ouvrir l’application web'],
+        mustContain: ['Tester sur iPhone', 'Télécharger pour iPhone'],
         customStep: async (client, sid) => {
           await client.send(
             'Runtime.evaluate',
             {
               expression: `(() => {
                 const btns = Array.from(document.querySelectorAll('button'));
-                const playBtn = btns.find((b) => b.textContent.includes('Google Play'));
-                if (playBtn) playBtn.click();
+                const iosBtn = btns.find((b) => b.textContent.includes('Tester sur iPhone'));
+                if (iosBtn) iosBtn.click();
               })()`,
             },
             sid

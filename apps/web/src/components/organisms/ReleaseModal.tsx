@@ -1,7 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DISTRIBUTION_CONFIG } from '../../config';
 
 export type PendingStoreTarget = 'playstore' | 'appstore' | null;
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 
 export interface ReleaseModalProps {
   target: PendingStoreTarget;
@@ -9,6 +14,17 @@ export interface ReleaseModalProps {
 }
 
 export const ReleaseModal: React.FC<ReleaseModalProps> = ({ target, onClose }) => {
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      setDeferredPrompt(event as BeforeInstallPromptEvent);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
   useEffect(() => {
     if (!target) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -20,11 +36,22 @@ export const ReleaseModal: React.FC<ReleaseModalProps> = ({ target, onClose }) =
 
   if (!target) return null;
 
-  const isPlay = target === 'playstore';
-  const title = isPlay ? 'Application Android · Google Play' : 'Application iOS · App Store';
-  const description = isPlay
-    ? 'Le lien public Google Play est en cours de déploiement pour cet environnement. Utilisez dès maintenant l’application web complète depuis votre téléphone ou ordinateur.'
-    : 'Le lien public App Store est en cours de déploiement pour cet environnement. Utilisez dès maintenant l’application web complète depuis votre navigateur Safari.';
+  const isAndroid = target === 'playstore';
+  const title = isAndroid ? 'Tester sur Android' : 'Tester sur iPhone';
+  const description = isAndroid
+    ? 'Installez Paiement BJ directement sur votre téléphone Android depuis Chrome (« Installer l’application » dans le menu du navigateur) pour l’utiliser comme une application locale.'
+    : 'Téléchargez le profil d’installation Paiement BJ pour iPhone, puis validez-le dans Réglages > Profil téléchargé pour ajouter l’application sur votre écran d’accueil.';
+
+  const handleAndroidInstall = async () => {
+    if (deferredPrompt) {
+      await deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      setDeferredPrompt(null);
+      onClose();
+      return;
+    }
+    window.location.assign(DISTRIBUTION_CONFIG.webAppUrl);
+  };
 
   return (
     <div
@@ -57,9 +84,31 @@ export const ReleaseModal: React.FC<ReleaseModalProps> = ({ target, onClose }) =
         <p className="modal-body">{description}</p>
 
         <div className="modal-actions">
-          <a href={DISTRIBUTION_CONFIG.webAppUrl} className="civic-cta-yellow">
-            Ouvrir l’application web
-          </a>
+          {isAndroid ? (
+            <button
+              type="button"
+              className="civic-cta-yellow"
+              onClick={handleAndroidInstall}
+            >
+              Installer sur Android
+            </button>
+          ) : (
+            <>
+              <a
+                href={DISTRIBUTION_CONFIG.iosProfileUrl}
+                download="PaiementBJ-iPhone.mobileconfig"
+                className="civic-cta-yellow"
+              >
+                Télécharger pour iPhone
+              </a>
+              <a
+                href={DISTRIBUTION_CONFIG.webAppUrl}
+                className="modal-btn-dismiss"
+              >
+                Ouvrir dans Safari
+              </a>
+            </>
+          )}
           <button type="button" className="modal-btn-dismiss" onClick={onClose} autoFocus>
             Fermer
           </button>

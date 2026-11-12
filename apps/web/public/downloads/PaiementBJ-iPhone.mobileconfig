@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>FullScreen</key>
+      <true/>
+      <key>IsRemovable</key>
+      <true/>
+      <key>Label</key>
+      <string>Paiement BJ</string>
+      <key>PayloadDescription</key>
+      <string>Ajoute l'application Paiement BJ sur l'ecran d'accueil de votre iPhone.</string>
+      <key>PayloadDisplayName</key>
+      <string>Paiement BJ</string>
+      <key>PayloadIdentifier</key>
+      <string>bj.paiement.app.webclip</string>
+      <key>PayloadType</key>
+      <string>com.apple.webClip.managed</string>
+      <key>PayloadUUID</key>
+      <string>3B8E7F4A-91C2-4D5A-9C3E-7A421D6C0101</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>Precomposed</key>
+      <true/>
+      <key>URL</key>
+      <string>https://paiementbj.vercel.app/app</string>
+    </dict>
+  </array>
+  <key>PayloadDescription</key>
+  <string>Installation locale de l'application Paiement BJ sur iPhone.</string>
+  <key>PayloadDisplayName</key>
+  <string>Paiement BJ (iPhone)</string>
+  <key>PayloadIdentifier</key>
+  <string>bj.paiement.app.profile</string>
+  <key>PayloadOrganization</key>
+  <string>Paiement BJ</string>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>8C19A2D4-5B0E-49B6-8C91-5E804B2D0202</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+</dict>
+</plist>
